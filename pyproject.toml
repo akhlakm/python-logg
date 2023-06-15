@@ -1,0 +1,32 @@
+[project]
+name = "pylogg"
+version = "2023.06.15a0"
+authors = [
+    { name="Akhlak Mahmood", email="akhlakm@gatech.edu" },
+]
+description = "Personally opinionated logger in Python."
+readme = "README.md"
+requires-python = ">=3.0"
+
+keywords = ["logging", "development"]
+
+classifiers = [
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+]
+
+dependencies = []
+
+[project.urls]
+"Homepage" = "https://github.com/akhlakm/python-logg"
+"Bug Tracker" = "https://github.com/akhlakm/python-logg/issues"
+
+[project.scripts]
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+packages = ["pylogg"]

@@ -2,20 +2,22 @@ import pylogg as log
 import module
 
 def mainfn():
-    log.Fatal("Hello world")
-    log.Error("Hello world")
-    log.Warn("Hello world " * 200)
-    log.Note("Hello world")
-    log.Done("Hello world")
-    log.Info("Hello world")
-    log.Trace("Hello world")
-    log.Debug("Hello world")
+    log.fatal("Hello world")
+    log.error("Hello world")
+    log.warn("Hello world " * 200)
+    log.note("Hello world")
+    log.done("Hello world")
+    log.info("Hello world")
+    log.trace("Hello world")
+    log.debug("Hello world")
     module.run()
 
-log.SetFile(open('test.log', 'w+'))
-# log.SetConsoleTimes(show=True)
+log.setFile(open('example.log', 'w+'))
+log.setConsoleTimes(show=True)
+log.setLevel(log.DEBUG)
 
-s = log.Info("Staring main --", id=23)
+s = log.info("Staring main --", id=23)
 mainfn()
-s.Done("main: {id}")
-log.Close()
+
+s.done("main: {id}")
+log.close()

@@ -1,6 +1,6 @@
 [project]
 name = "pylogg"
-version = "2023.06.15a0"
+version = "2023.06.15a1"
 authors = [
     { name="Akhlak Mahmood", email="akhlakm@gatech.edu" },
 ]

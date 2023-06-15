@@ -36,8 +36,11 @@ log.setConsoleTimes(show=True)
 # Save date and times to file
 log.setFileTimes(show=True)
 
-# Set logging level.
+# Set global logging level
 log.setLevel(log.DEBUG)
+
+# Override the level of a named sub-logger
+log.setLoggerLevel('module', log.INFO)
 
 # Use
 log.info("Hello world")
@@ -69,10 +72,12 @@ def timing():
     # long process
     time.sleep(2)
 
-    # Call the timer.done() to log elapsed time.
+    # Call timer.done() to log elapsed time.
     t1.done("Process completed.")
 
 ```
+
+**Note:** Full logg package must be imported. Use `import pylogg`, do not use `from pylogg import New`.
 
 See the [examples](https://github.com/akhlakm/python-logg/tree/main/examples) for more details.
 

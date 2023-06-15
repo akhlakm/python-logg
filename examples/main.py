@@ -16,6 +16,10 @@ log.setFile(open('example.log', 'w+'))
 log.setConsoleTimes(show=True)
 log.setLevel(log.DEBUG)
 
+# Override the level of a named sub-logger.
+log.setLoggerLevel('module', log.INFO)
+
+
 s = log.info("Staring main --", id=23)
 mainfn()
 

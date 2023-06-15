@@ -1,19 +1,11 @@
 """
 A personally opinionated logging package.
-
-Features:
-    - Colors in console.
-    - Eight levels of verbosity.
-    - Wrapping and shortening of long messages.
-    - Automatic logging of elapsed time.
+LICENSE MIT Copyright 2023 Akhlak Mahmood
 
 """
 
 __version__ = "2023.06.15a0"
 __author__ = "Akhlak Mahmood"
-
-# Note: Full logg package must be imported.
-# Use 'import logg', do not use 'from logg import New'.
 
 import os
 import sys
@@ -368,6 +360,9 @@ def _shorten(conf, msg):
     return msg.strip()
 
 def _indent(conf, msg, i=0):
+    # Wrap and indent a text by the same amount
+    # as the lenght of 'CRITICAL'. If i=0, the first
+    # line will not be indented.
     indent = " " * (len(_prefixes[FATAL]) + 2)
     wrapper = textwrap.TextWrapper(width=conf.line_width,
                                    initial_indent = indent * i,

@@ -74,5 +74,7 @@ def timing():
 
 ```
 
+See the [examples](https://github.com/akhlakm/python-logg/tree/main/examples) for more details.
+
 ## About
 LICENSE MIT Copyright 2023 Akhlak Mahmood

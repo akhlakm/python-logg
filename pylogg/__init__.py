@@ -9,7 +9,7 @@ Features:
 
 """
 
-__version__ = "2023.06.15"
+__version__ = "2023.06.15a0"
 __author__ = "Akhlak Mahmood"
 
 # Note: Full logg package must be imported.

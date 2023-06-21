@@ -77,10 +77,14 @@ class Timer:
         self._conf = conf
         self._kwargs = kwargs
 
+    def elapsed(self):
+        """ Return time elapsed since the start of the timer. """
+        return time.time() - self._start
+
     def done(self, msg, *args, **kwargs):
-        elapsed = time.time() - self._start
+        """ Log a done message for the task. """
         self._kwargs.update(kwargs)
-        self._kwargs['time_elapsed'] = elapsed
+        self._kwargs['time_elapsed'] = self.elapsed()
         _log(self._conf, DONE, _stack_info(), msg, *args, **self._kwargs)
 
 

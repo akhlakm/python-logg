@@ -109,7 +109,9 @@ class _new(_config):
         return self
 
     def _log(self, level, stack, msg, *args, **kwargs):
+        # Update with the module level configurations.
         self.__dict__.update(_conf.__dict__)
+        # Update with sub-logger level configurations.
         self.__dict__.update(self.conf)
         if self.level < level:
             return

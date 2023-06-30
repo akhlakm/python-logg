@@ -53,6 +53,7 @@ class _config(object):
     max_length = 200  # maximum length of a formatted message
     file_times      = True      # show times or not
     console_times   = False     # show times or not
+    console_stderr  = False     # print to stderr or stdout
     time_fmt = "%y-%m-%d %Z %I:%M:%S %p"
     color = True      # show colors or not
     fileh = None      # handle to a logfile
@@ -186,7 +187,7 @@ def _save(conf, level, fmtmsg, timestr, caller):
     conf.fileh.flush()
     return line
 
-def _print(conf, level, fmtmsg, timestr, caller):
+def _print(conf : _config, level, fmtmsg, timestr, caller):
     if not conf.console_times:
         timestr = ""
 
@@ -201,7 +202,10 @@ def _print(conf, level, fmtmsg, timestr, caller):
     fmtlogger = f"{conf.logger}_ " if conf.logger else ""
     line = f"{timestr} {prefix} {fmtlogger}{fmtmsg} {extra}"
     line = _indent(conf, line)
-    print(line)
+    if conf.console_stderr:
+        print(line, file=sys.stderr, flush=True)
+    else:
+        print(line, file=sys.stdout, flush=True)
     return line
 
 def _log(conf, level : int, stack : tuple, msg : str, *args, **kwargs):
@@ -310,6 +314,14 @@ def setFileStack(*, show : bool = None):
     """
     if show is not None:
         _conf.file_stack = show
+
+def setConsoleOutput(*, stderr : bool = None):
+    """
+    Output console logs to stderr or not.
+    Default output is stdout.
+    """
+    if stderr:
+        _conf.console_stderr = True
 
 def setConsoleTimes(*, show : bool = None, fmt : str = None):
     """ Show times on console. """

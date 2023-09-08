@@ -185,6 +185,7 @@ def _save(conf, level, fmtmsg, timestr, caller):
 
     conf.fileh.write(line + "\n")
     conf.fileh.flush()
+    os.fsync(conf.fileh)
     return line
 
 def _print(conf : _config, level, fmtmsg, timestr, caller):
@@ -336,6 +337,47 @@ def setFileTimes(*, show : bool = None, fmt : str = None):
         _conf.file_times = show
     if fmt is not None:
         _conf.file_time_fmt = fmt
+
+
+def init(log_level : int = 8, output_directory : str = ".",
+                logfile_name : str = None,
+                append_to_logfile : bool = False):
+    """
+        Intialize a logger and logfile to a specific directory.
+
+        log_level:          The log level (1-8), higher is more verbose.
+        output_directory:   The directory to save the logfile, (default `.`).
+        logfile_name:       The name of the logfile, (default python file name).
+        append_to_logfile:  Append logfile instead of overwriting.
+
+        Returns a log Timer.
+
+    """
+    script_name = os.path.splitext(os.path.basename(sys.argv[0]))[0]
+    if logfile_name is None:
+        logfile_name = f"{script_name}.log"
+
+    logfile_path = os.path.join(output_directory, logfile_name)
+
+    # print("Logging to file:", logfile_path, file=sys.stderr, flush=True)
+
+    if append_to_logfile:
+        log_file = open(logfile_path, "a+")
+    else:
+        log_file = open(logfile_path, "w+")
+
+    setLevel(log_level)
+    setFile(log_file)
+    setFileTimes(show=True)
+    setConsoleTimes(show=True)
+
+    t1 = info(f"OutDir: {output_directory}")
+    info("CWD: {}", os.getcwd())
+    info("Host: {}", os.uname())
+    info("Using loglevel = {}", log_level)
+
+    return t1
+
 
 
 if hasattr(sys, "_getframe"):

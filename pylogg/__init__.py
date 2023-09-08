@@ -185,7 +185,7 @@ def _save(conf, level, fmtmsg, timestr, caller):
 
     conf.fileh.write(line + "\n")
     conf.fileh.flush()
-    os.fsync(conf.fileh)
+    os.fsync(conf.fileh.fileno())
     return line
 
 def _print(conf : _config, level, fmtmsg, timestr, caller):

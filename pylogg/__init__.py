@@ -231,7 +231,7 @@ def _log(conf, level : int, stack : tuple, msg : str, *args, **kwargs):
         fmtmsg = msg.format(*args, **kwargs)
     except:
         fmtmsg = msg
-    fmtmsg = _shorten(conf, fmtmsg)
+    fmtmsg = _shorten(conf, fmtmsg, level)
 
     # Timer info
     if 'time_elapsed' in kwargs:
@@ -412,12 +412,15 @@ def _stack_info(stacklevel=1):
 
     return fname, f.f_lineno, funcname
 
-def _shorten(conf, msg):
-    # shorten too long messages
-    half = int(conf.max_length/2)
-    if len(msg) > 2 * half:
-        msg = msg[:half] + " ... " + msg[-half:]
-    return msg.strip()
+def _shorten(conf, msg, level):
+    if level < WARN:
+        return msg.strip()
+    else:
+        # shorten too long messages
+        half = int(conf.max_length/2)
+        if len(msg) > 2 * half:
+            msg = msg[:half] + " ... " + msg[-half:]
+        return msg.strip()
 
 def _indent(conf, msg, i=0):
     # Wrap and indent a text by the same amount

@@ -399,6 +399,7 @@ def init(log_level : int = 8, output_directory : str = ".",
     t1 = info(f"OutDir: {output_directory}")
     info("CWD: {}", os.getcwd())
     info("Host: {}", os.uname())
+    info("Args: {}", sys.argv)
     info("Using loglevel = {}", log_level)
 
     return t1

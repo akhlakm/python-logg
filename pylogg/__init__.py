@@ -83,11 +83,29 @@ class Timer:
         """ Return time elapsed since the start of the timer. """
         return time.time() - self._start
 
+    def note(self, msg, *args, **kwargs):
+        """ Log a done message for the task. """
+        self._kwargs.update(kwargs)
+        self._kwargs['time_elapsed'] = self.elapsed()
+        _log(self._conf, Level.NOTE, _stack_info(), msg, *args, **self._kwargs)
+
     def done(self, msg, *args, **kwargs):
         """ Log a done message for the task. """
         self._kwargs.update(kwargs)
         self._kwargs['time_elapsed'] = self.elapsed()
         _log(self._conf, Level.DONE, _stack_info(), msg, *args, **self._kwargs)
+
+    def info(self, msg, *args, **kwargs):
+        """ Log a done message for the task. """
+        self._kwargs.update(kwargs)
+        self._kwargs['time_elapsed'] = self.elapsed()
+        _log(self._conf, Level.INFO, _stack_info(), msg, *args, **self._kwargs)
+
+    def warn(self, msg, *args, **kwargs):
+        """ Log a done message for the task. """
+        self._kwargs.update(kwargs)
+        self._kwargs['time_elapsed'] = self.elapsed()
+        _log(self._conf, Level.WARN, _stack_info(), msg, *args, **self._kwargs)
 
 
 class _new(_config):

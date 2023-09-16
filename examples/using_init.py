@@ -12,11 +12,10 @@ def mainfn():
     log.debug("Hello world")
     module.run()
 
-t1 = log.init(log.DEBUG)
+t1 = log.init(log.Level.DEBUG)
 
 # Override the level of a named sub-logger.
-log.setLoggerLevel('module', log.INFO)
-
+log.setLoggerLevel('module', log.Level.INFO)
 
 log.info("Staring main --")
 mainfn()

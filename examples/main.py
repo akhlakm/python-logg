@@ -14,10 +14,10 @@ def mainfn():
 
 log.setFile(open('example.log', 'w+'))
 log.setConsoleTimes(show=True)
-log.setLevel(log.DEBUG)
+log.setLevel(log.Level.DEBUG)
 
 # Override the level of a named sub-logger.
-log.setLoggerLevel('module', log.INFO)
+log.setLoggerLevel('module', log.Level.INFO)
 
 
 s = log.info("Staring main --", id=23)

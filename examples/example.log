@@ -1,21 +1,20 @@
-[23-06-15 EDT 12:41:07 PM]       -- Staring main --
-[23-06-15 EDT 12:41:07 PM] CRITICAL Hello world [mainfn() main.py:5]
-[23-06-15 EDT 12:41:07 PM] ERROR -- Hello world
-[23-06-15 EDT 12:41:07 PM] WARN  -- Hello world Hello world Hello world Hello world Hello world
+[23-09-15 EDT 11:06:05 PM]       -- Staring main --
+[23-09-15 EDT 11:06:05 PM] CRITICAL Hello world [mainfn() main.py:5]
+[23-09-15 EDT 11:06:05 PM] ERROR -- Hello world
+[23-09-15 EDT 11:06:05 PM] WARN  -- Hello world Hello world Hello world Hello world Hello world
           Hello world Hello world Hello world Hell ... rld Hello world Hello world Hello world Hello
           world Hello world Hello world Hello world Hello world
-[23-06-15 EDT 12:41:07 PM] NOTE  -- Hello world
-[23-06-15 EDT 12:41:07 PM]   OK  -- Hello world
-[23-06-15 EDT 12:41:07 PM]       -- Hello world
-[23-06-15 EDT 12:41:07 PM]   --  -- Hello world
-[23-06-15 EDT 12:41:07 PM] DEBUG -- Hello world [mainfn() main.py:12]
-[23-06-15 EDT 12:41:07 PM] CRITICAL module_ Hello world [run() module.py:6]
-[23-06-15 EDT 12:41:07 PM] ERROR -- module_ Hello world
-[23-06-15 EDT 12:41:07 PM] WARN  -- module_ Hello world Hello world Hello world Hello world Hello
+[23-09-15 EDT 11:06:05 PM] NOTE  -- Hello world
+[23-09-15 EDT 11:06:05 PM]   OK  -- Hello world
+[23-09-15 EDT 11:06:05 PM]       -- Hello world
+[23-09-15 EDT 11:06:05 PM]   --  -- Hello world
+[23-09-15 EDT 11:06:05 PM] DEBUG -- Hello world [mainfn() main.py:12]
+[23-09-15 EDT 11:06:05 PM] CRITICAL module_ Hello world [run() module.py:6]
+[23-09-15 EDT 11:06:05 PM] ERROR -- module_ Hello world
+[23-09-15 EDT 11:06:05 PM] WARN  -- module_ Hello world Hello world Hello world Hello world Hello
           world Hello world Hello world Hello world Hell ... rld Hello world Hello world Hello world
           Hello world Hello world Hello world Hello world Hello world
-[23-06-15 EDT 12:41:07 PM] NOTE  -- module_ Hello world
-[23-06-15 EDT 12:41:07 PM]   OK  -- module_ Hello world
-[23-06-15 EDT 12:41:07 PM]       -- module_ Hello world
-[23-06-15 EDT 12:41:07 PM]   OK  -- main: 23 (took 0.001 s)
-[23-06-15 EDT 12:41:07 PM]   OK  -- ~
+[23-09-15 EDT 11:06:05 PM] NOTE  -- module_ Hello world
+[23-09-15 EDT 11:06:05 PM]       -- module_ Hello world
+[23-09-15 EDT 11:06:05 PM]   OK  -- main: 23 (took 0.024 s)
+[23-09-15 EDT 11:06:05 PM]   OK  -- ~

@@ -17,8 +17,8 @@ FATAL = 1
 ERROR = 2
 WARN  = 3
 NOTE  = 4
-DONE  = 5
-INFO  = 6
+INFO  = 5
+DONE  = 6
 TRACE = 7
 DEBUG = 8
 

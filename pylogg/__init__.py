@@ -357,6 +357,7 @@ def init(log_level : int = 8, output_directory : str = ".",
     if logfile_name is None:
         logfile_name = f"{script_name}.log"
 
+    os.makedirs(output_directory, exist_ok=True)
     logfile_path = os.path.join(output_directory, logfile_name)
 
     # print("Logging to file:", logfile_path, file=sys.stderr, flush=True)

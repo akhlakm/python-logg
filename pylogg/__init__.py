@@ -379,7 +379,12 @@ def init(log_level : int = 8, output_directory : str = ".",
     os.makedirs(output_directory, exist_ok=True)
     logfile_path = os.path.join(output_directory, logfile_name)
 
-    # print("Logging to file:", logfile_path, file=sys.stderr, flush=True)
+    if os.path.isfile(logfile_path):
+        rotated = _calc_file_rotation(logfile_path)
+        _printstderr(f"Rotating existing logfile: {rotated}")
+        os.rename(logfile_path, rotated)
+
+    _printstderr(f"Logging to file: {logfile_path}\n")
 
     if append_to_logfile:
         log_file = open(logfile_path, "a+")
@@ -451,3 +456,17 @@ def _indent(conf, msg, i=0):
                                    initial_indent = indent * i,
                                    subsequent_indent = indent)
     return wrapper.fill(msg.strip())
+
+
+def _calc_file_rotation(filepath) -> str:
+    # Return a new file name by adding a suffix with a serial number
+    # before the extension.
+    path, ext = os.path.splitext(filepath)
+    for i in range(1, 10000):
+        fname = f"{path}.{i:02d}{ext}"
+        if not os.path.isfile(fname):
+            return fname
+    raise RuntimeError("Cannot rotate logfile, too may files found.")
+
+def _printstderr(message):
+    print(message, file=sys.stderr, flush=True)

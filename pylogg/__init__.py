@@ -194,7 +194,7 @@ def _save(conf, level, fmtmsg, timestr, caller):
         timestr = ""
 
     extra = ""
-    if conf.file_stack or level in [Level.FATAL, Level.DEBUG]:
+    if conf.file_stack or level in [Level.FATAL, Level.ERROR, Level.DEBUG]:
         extra += caller
 
     prefix = _prefixes[level]
@@ -212,7 +212,7 @@ def _print(conf : _config, level, fmtmsg, timestr, caller):
         timestr = ""
 
     extra = ""
-    if conf.console_stack or level in [Level.FATAL, Level.DEBUG]:
+    if conf.console_stack or level in [Level.FATAL, Level.ERROR, Level.DEBUG]:
         extra += caller
 
     prefix = _colorize(conf, level, _prefixes[level])

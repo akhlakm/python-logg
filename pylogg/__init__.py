@@ -4,7 +4,7 @@ LICENSE MIT Copyright 2023 Akhlak Mahmood
 
 """
 
-__version__ = "0.1.11"
+__version__ = "0.1.12"
 __author__ = "Akhlak Mahmood"
 
 import os
@@ -376,8 +376,8 @@ def init(log_level : int = 8, output_directory : str = ".",
     if logfile_name is None:
         logfile_name = f"{script_name}.log"
 
-    os.makedirs(output_directory, exist_ok=True)
     logfile_path = os.path.join(output_directory, logfile_name)
+    os.makedirs(os.path.dirname(logfile_path), exist_ok=True)
 
     if os.path.isfile(logfile_path):
         rotated = _calc_file_rotation(logfile_path)

@@ -1,20 +1,26 @@
-[23-09-15 EDT 11:06:05 PM]       -- Staring main --
-[23-09-15 EDT 11:06:05 PM] CRITICAL Hello world [mainfn() main.py:5]
-[23-09-15 EDT 11:06:05 PM] ERROR -- Hello world
-[23-09-15 EDT 11:06:05 PM] WARN  -- Hello world Hello world Hello world Hello world Hello world
-          Hello world Hello world Hello world Hell ... rld Hello world Hello world Hello world Hello
-          world Hello world Hello world Hello world Hello world
-[23-09-15 EDT 11:06:05 PM] NOTE  -- Hello world
-[23-09-15 EDT 11:06:05 PM]   OK  -- Hello world
-[23-09-15 EDT 11:06:05 PM]       -- Hello world
-[23-09-15 EDT 11:06:05 PM]   --  -- Hello world
-[23-09-15 EDT 11:06:05 PM] DEBUG -- Hello world [mainfn() main.py:12]
-[23-09-15 EDT 11:06:05 PM] CRITICAL module_ Hello world [run() module.py:6]
-[23-09-15 EDT 11:06:05 PM] ERROR -- module_ Hello world
-[23-09-15 EDT 11:06:05 PM] WARN  -- module_ Hello world Hello world Hello world Hello world Hello
-          world Hello world Hello world Hello world Hell ... rld Hello world Hello world Hello world
-          Hello world Hello world Hello world Hello world Hello world
-[23-09-15 EDT 11:06:05 PM] NOTE  -- module_ Hello world
-[23-09-15 EDT 11:06:05 PM]       -- module_ Hello world
-[23-09-15 EDT 11:06:05 PM]   OK  -- main: 23 (took 0.024 s)
-[23-09-15 EDT 11:06:05 PM]   OK  -- ~
+[23-11-08 EST 11:49:53 PM]       -- Staring main --
+[23-11-08 EST 11:49:53 PM] CRITICAL Hello world [mainfn() main.py:5]
+[23-11-08 EST 11:49:53 PM] ERROR -- Hello world [mainfn() main.py:6]
+[23-11-08 EST 11:49:53 PM] WARN  -- Hello world Hello world Hello world Hello world Hello world
+          Hello world Hello world Hello world Hello world Hello world Hello world Hello world Hello
+          world Hello world Hello world Hello world Hello world Hello world Hello world Hello world
+          Hello worl ... llo world Hello world Hello world Hello world Hello world Hello world Hello
+          world Hello world Hello world Hello world Hello world Hello world Hello world Hello world
+          Hello world Hello world Hello world Hello world Hello world Hello world Hello world
+[23-11-08 EST 11:49:53 PM] NOTE  -- Hello world
+[23-11-08 EST 11:49:53 PM]   OK  -- Hello world
+[23-11-08 EST 11:49:53 PM]       -- Hello world
+[23-11-08 EST 11:49:53 PM]   --  -- Hello world
+[23-11-08 EST 11:49:53 PM] DEBUG -- Hello world [mainfn() main.py:12]
+[23-11-08 EST 11:49:53 PM] CRITICAL module_ Hello world [run() module.py:6]
+[23-11-08 EST 11:49:53 PM] ERROR -- module_ Hello world [run() module.py:7]
+[23-11-08 EST 11:49:53 PM] WARN  -- module_ Hello world Hello world Hello world Hello world Hello
+          world Hello world Hello world Hello world Hello world Hello world Hello world Hello world
+          Hello world Hello world Hello world Hello world Hello world Hello world Hello world Hello
+          world Hello worl ... llo world Hello world Hello world Hello world Hello world Hello world
+          Hello world Hello world Hello world Hello world Hello world Hello world Hello world Hello
+          world Hello world Hello world Hello world Hello world Hello world Hello world Hello world
+[23-11-08 EST 11:49:53 PM] NOTE  -- module_ Hello world
+[23-11-08 EST 11:49:53 PM]       -- module_ Hello world
+[23-11-08 EST 11:49:53 PM]   OK  -- main: 23 (took 0.019 s)
+[23-11-08 EST 11:49:53 PM]   OK  -- ~

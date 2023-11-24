@@ -4,7 +4,7 @@ LICENSE MIT Copyright 2023 Akhlak Mahmood
 
 """
 
-__version__ = "0.1.15"
+__version__ = "0.1.16"
 __author__ = "Akhlak Mahmood"
 
 import os
@@ -415,6 +415,7 @@ def init(log_level : int = 8, output_directory : str = ".",
 
         log_file = open(logfile_path, "w+")
 
+    os.chmod(logfile_path, 0o600)
     _printstderr(f"Logging to file: {logfile_path}\n")
 
     setLevel(log_level)

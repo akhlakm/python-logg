@@ -10,7 +10,6 @@ bump() {
     sed -i "s/\(__version__ = \"\)[^\"]*\"/\1$VERSION\"/" pylogg/__init__.py
     grep version pyproject.toml
     git add pyproject.toml pylogg/__init__.py
-    git commit -m "Bump to version $VERSION"
 }
 
 version() {

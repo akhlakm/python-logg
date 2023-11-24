@@ -12,6 +12,9 @@ def mainfn():
     log.debug("Hello world")
     module.run()
 
+def callback(msg : str):
+    print("CB:", msg)
+
 log.setFile(open('example.log', 'w+'))
 log.setConsoleTimes(show=True)
 log.setLevel(log.Level.DEBUG)
@@ -22,6 +25,10 @@ log.setLoggerLevel('module', log.Level.INFO)
 
 s = log.info("Staring main --", id=23)
 mainfn()
+
+log.setCallback(callback)
+log.info("Test for callback")
+log.setCallback(None)
 
 s.done("main: {id}")
 log.close()

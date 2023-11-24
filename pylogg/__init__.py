@@ -61,6 +61,7 @@ class _config(object):
     file_stack = False     # save caller info to logfile or not
     console_stack = False  # show caller info on console or not
     line_width = 100    # fix width of the log messages
+    callback : callable = None  # Additional function to send the log message
     _lastInfoTime = None # pvt var to measure execution time
 
 # Global module variables.
@@ -128,6 +129,14 @@ class _new(_config):
             raise AttributeError("Unknown setting: '%s'\nAvailable: %s" %(key, avail))
         return self
 
+    def setCallback(self, cb: callable):
+        """ Add a callback function to pass the formatted log messages.
+            Set None to remove.
+        """
+        assert callable(cb) or cb is None, \
+            "Callback must be a callable(str) or None"
+        self.conf['callback'] = cb
+
     def _log(self, level, stack, msg, *args, **kwargs):
         # Update with the module level configurations.
         self.__dict__.update(_conf.__dict__)
@@ -186,7 +195,7 @@ def _colorize(conf, level, msg):
         return msg
     return f"{_color_seqs[level]}{msg}{_reset_seq}"
 
-def _save(conf, level, fmtmsg, timestr, caller):
+def _save(conf : _config, level, fmtmsg, timestr, caller):
     if conf.fileh is None:
         return
 
@@ -205,6 +214,9 @@ def _save(conf, level, fmtmsg, timestr, caller):
     conf.fileh.write(line + "\n")
     conf.fileh.flush()
     os.fsync(conf.fileh.fileno())
+
+    if conf.callback:
+        conf.callback(line)
     return line
 
 def _print(conf : _config, level, fmtmsg, timestr, caller):
@@ -256,8 +268,8 @@ def _log(conf, level : int, stack : tuple, msg : str, *args, **kwargs):
     if 'time_elapsed' in kwargs:
         fmtmsg = f"{fmtmsg} (took {kwargs['time_elapsed']:.3f} s)"
 
-    _save(conf, level, fmtmsg, timestr, caller)
     _print(conf, level, fmtmsg, timestr, caller)
+    _save(conf, level, fmtmsg, timestr, caller)
 
 
 def fatal(msg, *args, **kwargs):
@@ -356,6 +368,14 @@ def setFileTimes(*, show : bool = None, fmt : str = None):
         _conf.file_times = show
     if fmt is not None:
         _conf.file_time_fmt = fmt
+
+def setCallback(cb: callable):
+    """ Add a callback function to pass the formatted log messages.
+        Set None to remove.
+    """
+    assert callable(cb) or cb is None, \
+        "Callback must be a callable(str) or None"
+    _conf.callback = cb
 
 
 def init(log_level : int = 8, output_directory : str = ".",

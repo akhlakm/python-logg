@@ -63,6 +63,7 @@ class _config(object):
     line_width = 100    # fix width of the log messages
     callback : callable = None  # Additional function to send the log message
     _lastInfoTime = None # pvt var to measure execution time
+    _init : bool = False # if log has been initialized
 
 # Global module variables.
 _conf = _config()
@@ -392,6 +393,10 @@ def init(log_level : int = 8, output_directory : str = ".",
         Returns a log Timer.
 
     """
+    # close previous log files.
+    if _conf._init:
+        close()
+
     script_name = os.path.splitext(os.path.basename(sys.argv[0]))[0]
     if logfile_name is None:
         logfile_name = f"{script_name}.log"
@@ -415,6 +420,7 @@ def init(log_level : int = 8, output_directory : str = ".",
     setFile(log_file)
     setFileTimes(show=True)
     setConsoleTimes(show=True)
+    _conf._init = True
 
     t1 = info(f"OutDir: {output_directory}")
     info("CWD: {}", os.getcwd())

@@ -4,7 +4,7 @@ LICENSE MIT Copyright 2023 Akhlak Mahmood
 
 """
 
-__version__ = "0.1.14"
+__version__ = "0.1.15"
 __author__ = "Akhlak Mahmood"
 
 import os
@@ -404,17 +404,18 @@ def init(log_level : int = 8, output_directory : str = ".",
     logfile_path = os.path.join(output_directory, logfile_name)
     os.makedirs(os.path.dirname(logfile_path), exist_ok=True)
 
-    if os.path.isfile(logfile_path):
-        rotated = _calc_file_rotation(logfile_path)
-        _printstderr(f"Rotating existing logfile: {rotated}")
-        os.rename(logfile_path, rotated)
-
-    _printstderr(f"Logging to file: {logfile_path}\n")
-
     if append_to_logfile:
         log_file = open(logfile_path, "a+")
     else:
+        # Rotate existing log file if not appending.
+        if os.path.isfile(logfile_path):
+            rotated = _calc_file_rotation(logfile_path)
+            _printstderr(f"Rotating existing logfile: {rotated}")
+            os.rename(logfile_path, rotated)
+
         log_file = open(logfile_path, "w+")
+
+    _printstderr(f"Logging to file: {logfile_path}\n")
 
     setLevel(log_level)
     setFile(log_file)

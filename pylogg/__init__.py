@@ -390,7 +390,7 @@ def setCallback(cb: callable):
     _conf.callback = cb
 
 
-def init(log_level : int = 8, output_directory : str = ".",
+def init(log_level : int = 6, output_directory : str = ".",
                 logfile_name : str = None, colored = True,
                 append_to_logfile : bool = False):
     """

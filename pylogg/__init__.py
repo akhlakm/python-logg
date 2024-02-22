@@ -325,7 +325,7 @@ def setLevel(level):
     """
     _conf.level = level
 
-def setColor(show : bool = True):
+def setColor(*, show : bool = True):
     """ Enable or disable colored logging to console.
     """
     _conf.color = show
@@ -426,7 +426,7 @@ def init(log_level : int = 8, output_directory : str = ".",
 
     setFile(log_file)
     setLevel(log_level)
-    setColor(colored)
+    setColor(show=colored)
     setFileTimes(show=True)
     setConsoleTimes(show=True)
 

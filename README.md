@@ -23,7 +23,8 @@ Set up the logger in the main script.
 ```python
 import pylogg
 
-pylogg.init(pylogg.Level.INFO, colored=False)
+pylogg.init(pylogg.Level.TRACE, colored=False)
+pylogg.info("Hello world.")
 ```
 
 Update individual settings if needed. These settings will override the settings set using `pylogg.get()` instances.

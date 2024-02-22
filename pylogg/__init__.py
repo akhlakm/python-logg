@@ -191,6 +191,11 @@ def New(name) -> _new:
         _manager[name] = log
     return _manager[name]
 
+def get(name) -> _new:
+    """
+    Get the logger with name or create a new named logger.
+    """
+    return New(name)
 
 def _colorize(conf, level, msg):
     if not conf.color:
@@ -439,7 +444,6 @@ def init(log_level : int = 8, output_directory : str = ".",
     info("Using loglevel = {}", log_level)
 
     return t1
-
 
 
 if hasattr(sys, "_getframe"):

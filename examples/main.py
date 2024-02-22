@@ -1,5 +1,7 @@
-import pylogg as log
 import module
+
+import pylogg as log
+
 
 def mainfn():
     log.fatal("Hello world")

@@ -18,6 +18,12 @@ classifiers = [
 
 dependencies = []
 
+[project.optional-dependencies]
+dev = [
+    "pytest",
+    "pre-commit",
+]
+
 [project.urls]
 "Homepage" = "https://github.com/akhlakm/python-logg"
 "Bug Tracker" = "https://github.com/akhlakm/python-logg/issues"

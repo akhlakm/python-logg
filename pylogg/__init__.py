@@ -9,9 +9,10 @@ __author__ = "Akhlak Mahmood"
 
 import os
 import sys
-import time
 import textwrap
+import time
 from datetime import datetime, timezone
+
 
 class Level:
     FATAL = 1
@@ -244,7 +245,7 @@ def _print(conf : _config, level, fmtmsg, timestr, caller):
 def _log(conf, level : int, stack : tuple, msg : str, *args, **kwargs):
     if _conf.level < level:
         return
-    
+
     if conf.logger in _levelOverrides:
         if _levelOverrides[conf.logger] < level:
             return
@@ -320,7 +321,7 @@ def setFile(file_handle):
 def setLevel(level):
     """
     Set the level of the main logger.
-    This has the highest precedence even before the overrides.    
+    This has the highest precedence even before the overrides.
     """
     _conf.level = level
 

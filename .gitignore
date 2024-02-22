@@ -1,7 +1,6 @@
 *.pyc
 *.env
 *.yml
-*.yaml
 *.json
 *.log
 *.egg-info/

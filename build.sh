@@ -29,4 +29,8 @@ tag() {
     git tag v$version && git push origin v$version
 }
 
+prepare() {
+    pre-commit run --all-files
+}
+
 "$@"

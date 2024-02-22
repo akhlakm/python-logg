@@ -1,4 +1,4 @@
-# python-logg
+# Python-PyLogg
 A personally opinionated logging package in Python.
 
 Features:
@@ -11,18 +11,16 @@ Features:
 - Automatic logging of elapsed times for long processes.
 
 ## Installation
-Clone this repo and install with `pip`.
+You can install this package from PyPI with `pip`.
 
 ```sh
-git clone https://github.com/akhlakm/python-logg.git
-cd python-logg
-pip install -e .
+pip install -U pylogg
 ```
-
 
 ## Usage
 
-Set up the logger in the main script. These settings will override the settings set using `pylogg.New()` instance.
+Set up the logger in the main script.
+These settings will override the settings set using `pylogg.New()` instance.
 
 ```python
 import pylogg as log
@@ -77,9 +75,11 @@ def timing():
 
 ```
 
-**Note:** Full logg package must be imported. Use `import pylogg`, do not use `from pylogg import New`.
+**Note:** Full logg package must be imported. Use `import pylogg`,
+do not use `from pylogg import New`.
 
-See the [examples](https://github.com/akhlakm/python-logg/tree/main/examples) for more details.
+See the [examples](https://github.com/akhlakm/python-logg/tree/main/examples)
+for more details.
 
 ## About
 LICENSE MIT Copyright 2023 Akhlak Mahmood

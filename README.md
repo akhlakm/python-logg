@@ -18,9 +18,15 @@ pip install -U pylogg
 ```
 
 ## Usage
-
 Set up the logger in the main script.
-These settings will override the settings set using `pylogg.New()` instance.
+
+```python
+import pylogg
+
+pylogg.init(pylogg.Level.INFO, colored=False)
+```
+
+Update individual settings if needed. These settings will override the settings set using `pylogg.get()` instances.
 
 ```python
 import pylogg as log
@@ -52,8 +58,8 @@ Use sub-logger from the modules.
 import time
 import pylogg
 
-# Create a new sub-logger
-log = pylogg.New('module')
+# Create or get a named sub-logger.
+log = pylogg.get(__name__)
 
 # Use
 def run():
@@ -76,7 +82,7 @@ def timing():
 ```
 
 **Note:** Full logg package must be imported. Use `import pylogg`,
-do not use `from pylogg import New`.
+do not use `from pylogg import get`.
 
 See the [examples](https://github.com/akhlakm/python-logg/tree/main/examples)
 for more details.

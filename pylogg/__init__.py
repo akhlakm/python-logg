@@ -325,6 +325,11 @@ def setLevel(level):
     """
     _conf.level = level
 
+def setColor(show : bool = True):
+    """ Enable or disable colored logging to console.
+    """
+    _conf.color = show
+
 def setLoggerLevel(name, level : int):
     """ Override the level of a named logger. """
     _levelOverrides[name] = level
@@ -381,7 +386,7 @@ def setCallback(cb: callable):
 
 
 def init(log_level : int = 8, output_directory : str = ".",
-                logfile_name : str = None,
+                logfile_name : str = None, colored = True,
                 append_to_logfile : bool = False):
     """
         Intialize a logger and logfile to a specific directory.
@@ -419,10 +424,12 @@ def init(log_level : int = 8, output_directory : str = ".",
     os.chmod(logfile_path, 0o600)
     _printstderr(f"Logging to file: {logfile_path}\n")
 
-    setLevel(log_level)
     setFile(log_file)
+    setLevel(log_level)
+    setColor(colored)
     setFileTimes(show=True)
     setConsoleTimes(show=True)
+
     _conf._init = True
 
     t1 = info(f"OutDir: {output_directory}")

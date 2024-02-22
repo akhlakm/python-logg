@@ -87,5 +87,23 @@ do not use `from pylogg import get`.
 See the [examples](https://github.com/akhlakm/python-logg/tree/main/examples)
 for more details.
 
+## Development
+```sh
+# Create a fork and clone the git repo.
+git clone https://github.com/akhlakm/python-logg.git
+cd python-logg
+
+# Install dev requirements.
+pip install -e .[dev]
+
+# Install pre-commit git hooks.
+pre-commit install
+
+# Make changes and commit.
+
+# Publish new tag.
+./make.sh publish
+```
+
 ## About
 LICENSE MIT Copyright 2023 Akhlak Mahmood

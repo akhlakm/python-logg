@@ -28,10 +28,10 @@ _prefixes = {
     Level.FATAL: "CRITICAL", # process must exit
     Level.ERROR: "ERROR --", # irrecoverable error
     Level.WARN:  "WARN  --", # unexpected or rare condition
-    Level.NOTE:  "NOTE  --", # special notes
-    Level.INFO:  "      --", # info messages, default level
-    Level.DONE:  "  OK  --", # success message, trace
-    Level.TRACE: "  --  --", # start of something, trace
+    Level.NOTE:  "NOTE  --", # special messages
+    Level.DONE:  "  OK  --", # success message, progress reporting
+    Level.INFO:  "      --", # info messages, verbose
+    Level.TRACE: "  --  --", # start of something, 2x verbose
     Level.DEBUG: "DEBUG --", # for development
 }
 
@@ -87,7 +87,7 @@ class Timer:
         return time.time() - self._start
 
     def note(self, msg, *args, **kwargs):
-        """ Log a done message for the task. """
+        """ Log a note message for the task. """
         self._kwargs.update(kwargs)
         self._kwargs['time_elapsed'] = self.elapsed()
         _log(self._conf, Level.NOTE, _stack_info(), msg, *args, **self._kwargs)
@@ -99,13 +99,13 @@ class Timer:
         _log(self._conf, Level.DONE, _stack_info(), msg, *args, **self._kwargs)
 
     def info(self, msg, *args, **kwargs):
-        """ Log a done message for the task. """
+        """ Log an info message for the task. """
         self._kwargs.update(kwargs)
         self._kwargs['time_elapsed'] = self.elapsed()
         _log(self._conf, Level.INFO, _stack_info(), msg, *args, **self._kwargs)
 
     def warn(self, msg, *args, **kwargs):
-        """ Log a done message for the task. """
+        """ Log a warning for the task. """
         self._kwargs.update(kwargs)
         self._kwargs['time_elapsed'] = self.elapsed()
         _log(self._conf, Level.WARN, _stack_info(), msg, *args, **self._kwargs)
@@ -390,15 +390,17 @@ def setCallback(cb: callable):
     _conf.callback = cb
 
 
-def init(log_level : int = Level.DONE, output_directory : str = ".",
-                logfile_name : str = None, colored = True,
-                append_to_logfile : bool = False):
+def init(log_level : int = Level.DONE, output_directory : str = "logs",
+            logfile_name : str = None, colored = True, console_times = False,
+            append_to_logfile : bool = False):
     """
         Intialize a logger and logfile to a specific directory.
 
         log_level:          The log level (1-8), higher is more verbose.
         output_directory:   The directory to save the logfile.
         logfile_name:       The name of the logfile (default: python file name).
+        colored:            Use colors on console.
+        console_times:      Show timestamp on console.
         append_to_logfile:  Append logfile instead of overwriting.
 
         Returns a log Timer.
@@ -408,8 +410,8 @@ def init(log_level : int = Level.DONE, output_directory : str = ".",
     if _conf._init:
         close()
 
-    script_name = os.path.splitext(os.path.basename(sys.argv[0]))[0]
     if logfile_name is None:
+        script_name = os.path.splitext(os.path.basename(sys.argv[0]))[0]
         logfile_name = f"{script_name}.log"
 
     logfile_path = os.path.join(output_directory, logfile_name)
@@ -433,7 +435,7 @@ def init(log_level : int = Level.DONE, output_directory : str = ".",
     setLevel(log_level)
     setColor(show=colored)
     setFileTimes(show=True)
-    setConsoleTimes(show=True)
+    setConsoleTimes(show=console_times)
 
     _conf._init = True
 

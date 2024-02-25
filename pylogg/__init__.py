@@ -273,7 +273,7 @@ def _log(conf, level : int, stack : tuple, msg : str, *args, **kwargs):
             fmtmsg = msg
     else:
         # info("Hello", "world")
-        fmtmsg = " ".join([msg] + args)
+        fmtmsg = " ".join([msg] + list(args))
 
     fmtmsg = _shorten(conf, fmtmsg, level)
 
@@ -320,7 +320,7 @@ def debug(msg, *args, **kwargs):
 
 def close():
     """ Shutdown logging. Close any open handles. """
-    _log(_conf, Level.DONE, _stack_info(), "~")
+    _log(_conf, Level.TRACE, _stack_info(), "~")
     if _conf.fileh is not None:
         _conf.fileh.close()
         _conf.fileh = None
@@ -444,12 +444,15 @@ def init(log_level : int = Level.DONE, output_directory : str = "logs",
     setConsoleTimes(show=console_times)
 
     _conf._init = True
+    log_level_name = [k for k, v in Level.__dict__.items() if v == log_level][0]
 
-    t1 = info(f"OutDir: {output_directory}")
-    info("CWD: {}", os.getcwd())
-    info("Host: {}", os.uname())
-    info("Args: '{}'", " ".join(sys.argv))
-    info("Using loglevel = {}", log_level)
+    t1 = \
+    trace("~")
+    note("Using loglevel = {}", log_level_name)
+    note("Args: {}", " ".join(sys.argv))
+    note("CWD: {}", os.getcwd())
+    note("Host: {}", os.uname().nodename)
+    info(f"OutDir: {output_directory}")
 
     return t1
 

@@ -4,7 +4,7 @@ version = "0.1.18"
 authors = [
     { name="Akhlak Mahmood", email="akhlakm@gatech.edu" },
 ]
-description = "Personally opinionated logger in Python."
+description = "Logging and YAML-based configuration modules in Python."
 readme = "README.md"
 requires-python = ">=3.0"
 
@@ -16,7 +16,9 @@ classifiers = [
     "License :: OSI Approved :: MIT License",
 ]
 
-dependencies = []
+dependencies = [
+    "pyyaml",
+]
 
 [project.optional-dependencies]
 dev = [

@@ -1,14 +1,5 @@
-# Python-PyLogg
-A personally opinionated logging package in Python.
-
-Features:
-- Colors in console.
-- Saving log messages into a single file.
-- Support for named sub-loggers.
-- Override of log levels and settings from the main function.
-- Eight levels of verbosity.
-- Wrapping and shortening of long messages.
-- Automatic logging of elapsed times for long processes.
+# PyLogg
+Logging and YAML-based configuration modules in Python.
 
 ## Installation
 You can install this package from PyPI with `pip`.
@@ -107,4 +98,4 @@ pre-commit install
 ```
 
 ## About
-LICENSE MIT Copyright 2023 Akhlak Mahmood
+LICENSE MIT Copyright 2024 Akhlak Mahmood

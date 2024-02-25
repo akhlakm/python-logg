@@ -15,6 +15,7 @@ from datetime import datetime, timezone
 
 
 class Level:
+    NONE  = 0
     FATAL = 1
     ERROR = 2
     WARN  = 3
@@ -25,6 +26,7 @@ class Level:
     DEBUG = 8
 
 _prefixes = {
+    Level.NONE:  "        ", # no prefix/level
     Level.FATAL: "CRITICAL", # process must exit
     Level.ERROR: "ERROR --", # irrecoverable error
     Level.WARN:  "WARN  --", # unexpected or rare condition
@@ -39,11 +41,12 @@ _reset_seq = "\033[0m"
 _red, _green, _yellow, _blue, _magenta, _cyan, _white = range(31, 38)
 
 _color_seqs = {
+    Level.NONE:   "\033[0;%dm" % _green,
     Level.FATAL:  "\033[1;%dm" % _red,
     Level.ERROR:  "\033[1;%dm" % _yellow,
     Level.WARN:   "\033[0;%dm" % _magenta,
     Level.NOTE:   "\033[1;%dm" % _cyan,
-    Level.DONE:   "\033[0;%dm" % _yellow,
+    Level.DONE:   "\033[0;%dm" % _blue,
     Level.INFO:   "\033[1;%dm" % _cyan,
     Level.TRACE:  "\033[0;%dm" % _white,
     Level.DEBUG:  "\033[1;%dm" % _white,
@@ -110,6 +113,12 @@ class Timer:
         self._kwargs['time_elapsed'] = self.elapsed()
         _log(self._conf, Level.WARN, _stack_info(), msg, *args, **self._kwargs)
 
+    def section(self, msg = "", sep = "-", linebreak = False, **kwargs):
+        """ Log a warning for the task. """
+        self._kwargs.update(kwargs)
+        self._kwargs['time_elapsed'] = self.elapsed()
+        section(msg, sep, linebreak, **self._kwargs)
+
 
 class _new(_config):
     """
@@ -170,6 +179,9 @@ class _new(_config):
     def done(self, msg, *args, **kwargs):
         self._log(Level.DONE, _stack_info(), msg, *args, **kwargs)
 
+    def section(self, msg = "", sep = "-", linebreak = True, **kwargs) -> Timer:
+        return section(msg, sep, linebreak, **kwargs)
+
     def info(self, msg, *args, **kwargs) -> Timer:
         self._log(Level.INFO, _stack_info(), msg, *args, **kwargs)
         return Timer(self, **kwargs)
@@ -200,7 +212,8 @@ def get(name) -> _new:
 def _colorize(conf, level, msg):
     if not conf.color:
         return msg
-    return f"{_color_seqs[level]}{msg}{_reset_seq}"
+    else:
+        return f"{_color_seqs[level]}{msg}{_reset_seq}"
 
 def _save(conf : _config, level, fmtmsg, timestr, caller):
     if conf.fileh is None:
@@ -213,10 +226,14 @@ def _save(conf : _config, level, fmtmsg, timestr, caller):
     if conf.file_stack or level in [Level.FATAL, Level.ERROR, Level.DEBUG]:
         extra += caller
 
-    prefix = _prefixes[level]
-    fmtlogger = f"{conf.logger}_ " if conf.logger else ""
-    line = f"{timestr} {prefix} {fmtlogger}{fmtmsg} {extra}"
-    line = _indent(conf, line)
+    # Allow spacings
+    if len(fmtmsg.strip()) and level > Level.NONE:
+        prefix = _prefixes[level]
+        fmtlogger = f"{conf.logger}_ " if conf.logger else ""
+        line = f"{timestr}{prefix} {fmtlogger}{fmtmsg} {extra}"
+        line = _indent(conf, line)
+    else:
+        line = fmtmsg
 
     conf.fileh.write(line + "\n")
     conf.fileh.flush()
@@ -234,13 +251,18 @@ def _print(conf : _config, level, fmtmsg, timestr, caller):
     if conf.console_stack or level in [Level.FATAL, Level.ERROR, Level.DEBUG]:
         extra += caller
 
-    prefix = _colorize(conf, level, _prefixes[level])
-    if level in [Level.FATAL, Level.ERROR, Level.DEBUG]:
-        fmtmsg = _colorize(conf, level, fmtmsg)
+    # Allow spacings
+    if len(fmtmsg.strip()) and level > Level.NONE:
+        prefix = _colorize(conf, level, _prefixes[level])
+        if level in [Level.FATAL, Level.ERROR, Level.DEBUG]:
+            fmtmsg = _colorize(conf, level, fmtmsg)
 
-    fmtlogger = f"{conf.logger}_ " if conf.logger else ""
-    line = f"{timestr} {prefix} {fmtlogger}{fmtmsg} {extra}"
-    line = _indent(conf, line)
+        fmtlogger = f"{conf.logger}_ " if conf.logger else ""
+        line = f"{timestr}{prefix} {fmtlogger}{fmtmsg} {extra}"
+        line = _indent(conf, line)
+    else:
+        line = _colorize(conf, level, fmtmsg)
+
     if conf.console_stderr:
         print(line, file=sys.stderr, flush=True)
     else:
@@ -263,7 +285,7 @@ def _log(conf, level : int, stack : tuple, msg : str, *args, **kwargs):
 
     # Date time info
     local_now = datetime.now(timezone.utc).astimezone()
-    timestr = local_now.strftime(f"[{_conf.time_fmt}]")
+    timestr = local_now.strftime(f"[{_conf.time_fmt}]") + " "
 
     if "{" in msg and "}" in msg:
         # info("Hello {}", "world")
@@ -275,7 +297,9 @@ def _log(conf, level : int, stack : tuple, msg : str, *args, **kwargs):
         # info("Hello", "world")
         fmtmsg = " ".join([msg] + list(args))
 
-    fmtmsg = _shorten(conf, fmtmsg, level)
+    # Allow spacings
+    if len(fmtmsg.strip()):
+        fmtmsg = _shorten(conf, fmtmsg, level)
 
     # Timer info
     if 'time_elapsed' in kwargs:
@@ -317,6 +341,22 @@ def trace(msg, *args, **kwargs) -> Timer:
 
 def debug(msg, *args, **kwargs):
     _log(_conf, Level.DEBUG, _stack_info(), msg, *args, **kwargs)
+
+def section(msg = "", sep = '-', linebreak = True, **kwargs):
+    msg = msg if len(msg) else kwargs.get('section', msg)
+    width = (_conf.line_width - len(msg)) // 2
+    if len(msg):
+        kwargs['section'] = msg
+        msg = " ".join([sep * width, msg, sep * width])
+    else:
+        msg = sep * (2 * width + 2)
+
+    if linebreak:
+        # Add a linebreak
+        _log(_conf, Level.NONE, _stack_info(), '')
+
+    _log(_conf, Level.NONE, _stack_info(), msg)
+    return Timer(_conf, **kwargs)
 
 def close():
     """ Shutdown logging. Close any open handles. """
@@ -416,8 +456,8 @@ def init(log_level : int = Level.DONE, output_directory : str = "logs",
     if _conf._init:
         close()
 
+    script_name = os.path.splitext(os.path.basename(sys.argv[0]))[0]
     if logfile_name is None:
-        script_name = os.path.splitext(os.path.basename(sys.argv[0]))[0]
         logfile_name = f"{script_name}.log"
 
     logfile_path = os.path.join(output_directory, logfile_name)
@@ -445,14 +485,15 @@ def init(log_level : int = Level.DONE, output_directory : str = "logs",
 
     _conf._init = True
     log_level_name = [k for k, v in Level.__dict__.items() if v == log_level][0]
+    log_info = f"{log_level_name} (v{__version__})"
 
-    t1 = \
-    trace("~")
-    note("Using loglevel = {}", log_level_name)
+    t1 = section(script_name, linebreak=False)
+    note("Loglevel: {}", log_info)
     note("Args: {}", " ".join(sys.argv))
     note("CWD: {}", os.getcwd())
     note("Host: {}", os.uname().nodename)
     info(f"OutDir: {output_directory}")
+    section(linebreak=False)
 
     return t1
 
@@ -507,7 +548,7 @@ def _indent(conf, msg, i=0):
     wrapper = textwrap.TextWrapper(width=conf.line_width,
                                    initial_indent = indent * i,
                                    subsequent_indent = indent)
-    return wrapper.fill(msg.strip())
+    return wrapper.fill(msg)
 
 
 def _calc_file_rotation(filepath) -> str:

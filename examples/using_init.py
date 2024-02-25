@@ -4,17 +4,17 @@ import pylogg as log
 
 
 def mainfn():
-    log.fatal("Hello world")
-    log.error("Hello world")
+    log.info("Hello")
+    log.fatal("Hello", "world")
+    log.error("Hello {}", "world")
     log.warn("Hello world " * 200)
-    log.note("Hello world")
+    log.note("Hello {name}", name="world")
     log.done("Hello world")
-    log.info("Hello world")
     log.trace("Hello world")
     log.debug("Hello world")
     module.run()
 
-t1 = log.init(log.Level.DEBUG)
+t1 = log.init()
 
 # Override the level of a named sub-logger.
 log.setLoggerLevel('module', log.Level.INFO)

@@ -172,12 +172,16 @@ class YAMLSettings:
         return len(self.yamlvars) > 0
 
 
-    def save(self, *sections : NamedTuple, yamlfile : str = None):
+    def save(self, *sections : NamedTuple, yamlfile : str = None,
+                keep_existing : bool = True):
         """ Save the given sections to YAML file.
             If no section is specified, all sections are written.
             If no yamlfile is given, the initial file is used.
+
+            keep_existing:
+                Keep the already existing sections in the YAML file.
         """
-        configs = {}
+        configs = self.yamlvars if keep_existing else {}
         outfile = yamlfile if yamlfile is not None else self.file
 
         # Use all sections

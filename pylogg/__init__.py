@@ -265,10 +265,16 @@ def _log(conf, level : int, stack : tuple, msg : str, *args, **kwargs):
     local_now = datetime.now(timezone.utc).astimezone()
     timestr = local_now.strftime(f"[{_conf.time_fmt}]")
 
-    try:
-        fmtmsg = msg.format(*args, **kwargs)
-    except:
-        fmtmsg = msg
+    if "{" in msg and "}" in msg:
+        # info("Hello {}", "world")
+        try:
+            fmtmsg = msg.format(*args, **kwargs)
+        except:
+            fmtmsg = msg
+    else:
+        # info("Hello", "world")
+        fmtmsg = " ".join([msg] + args)
+
     fmtmsg = _shorten(conf, fmtmsg, level)
 
     # Timer info

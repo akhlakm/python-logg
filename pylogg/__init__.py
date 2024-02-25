@@ -19,8 +19,8 @@ class Level:
     ERROR = 2
     WARN  = 3
     NOTE  = 4
-    INFO  = 5
-    DONE  = 6
+    DONE  = 5
+    INFO  = 6
     TRACE = 7
     DEBUG = 8
 
@@ -390,15 +390,15 @@ def setCallback(cb: callable):
     _conf.callback = cb
 
 
-def init(log_level : int = 6, output_directory : str = ".",
+def init(log_level : int = Level.DONE, output_directory : str = ".",
                 logfile_name : str = None, colored = True,
                 append_to_logfile : bool = False):
     """
         Intialize a logger and logfile to a specific directory.
 
         log_level:          The log level (1-8), higher is more verbose.
-        output_directory:   The directory to save the logfile, (default `.`).
-        logfile_name:       The name of the logfile, (default python file name).
+        output_directory:   The directory to save the logfile.
+        logfile_name:       The name of the logfile (default: python file name).
         append_to_logfile:  Append logfile instead of overwriting.
 
         Returns a log Timer.

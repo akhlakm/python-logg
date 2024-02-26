@@ -469,7 +469,6 @@ def init(log_level : int = Level.DONE, output_directory : str = "logs",
         # Rotate existing log file if not appending.
         if os.path.isfile(logfile_path):
             rotated = _calc_file_rotation(logfile_path)
-            _printstderr(f"Rotating existing logfile: {rotated}")
             os.rename(logfile_path, rotated)
 
         log_file = open(logfile_path, "w+")
@@ -487,15 +486,13 @@ def init(log_level : int = Level.DONE, output_directory : str = "logs",
     log_level_name = [k for k, v in Level.__dict__.items() if v == log_level][0]
     log_info = f"{log_level_name} (v{__version__})"
 
-    t1 = section(script_name, linebreak=False)
+    section(script_name, linebreak=False)
     note("Loglevel: {}", log_info)
     note("Args: {}", " ".join(sys.argv))
     note("CWD: {}", os.getcwd())
     note("Host: {}", os.uname().nodename)
-    info(f"OutDir: {output_directory}")
-    section(linebreak=False)
-
-    return t1
+    note("Logfile: {}", logfile_path)
+    return section(linebreak=False)
 
 
 if hasattr(sys, "_getframe"):

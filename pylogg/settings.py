@@ -195,7 +195,13 @@ class YAMLSettings:
             try:
                 # class
                 section = cls.__name__
-                configs[section] = cls.get()._asdict()
+                assert hasattr(cls, 'settings'), \
+                    f"No 'settings' method found in {section}, use an instance."
+                try:
+                    configs[section] = cls.settings()._asdict()
+                except:
+                    raise RuntimeError(
+                        f"{section}.settings() not found, use an instance.")
 
             except AttributeError:
                 # instance

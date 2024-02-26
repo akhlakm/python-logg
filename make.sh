@@ -15,7 +15,7 @@ publish() {
 
     # Add to git and push.
     git add pyproject.toml pylogg/__init__.py
-    git commit -m "Bump version"
+    git commit -m "Bump to v$VERSION"
     git push
 
     # Create a new git tag using the pyproject.toml version

@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 
 publish() {
+    # Run tests
+    pytest || exit 1
+
     # Bump the version number.
     grep version pyproject.toml
     VERSION=$(sed -n 's/version = "\(.*\)"/\1/p' pyproject.toml)

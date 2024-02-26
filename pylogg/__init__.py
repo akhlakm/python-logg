@@ -295,7 +295,7 @@ def _log(conf, level : int, stack : tuple, msg : str, *args, **kwargs):
             fmtmsg = msg
     else:
         # info("Hello", "world")
-        fmtmsg = " ".join([msg] + list(args))
+        fmtmsg = " ".join([msg] + [str(s) for s in args])
 
     # Allow spacings
     if len(fmtmsg.strip()):

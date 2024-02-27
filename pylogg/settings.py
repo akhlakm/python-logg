@@ -19,6 +19,7 @@
 """
 
 import os
+import string
 import sys
 from typing import NamedTuple
 
@@ -65,6 +66,9 @@ class YAMLSettings:
         self.file = (sys.argv[1] if len(sys.argv) > 1 else yamlfile) \
             if first_arg_as_file else yamlfile
 
+        # Commandline args.
+        self.args = self._cmdline_subs()
+
         # YAML file loaded variables.
         self.yamlvars : dict[str, dict[str, any]] = {}
 
@@ -96,6 +100,9 @@ class YAMLSettings:
             data_type = cls.__annotations__[field]
             value = cls._field_defaults.get(field, None)
 
+            # Check if there is any arg template in the default value.
+            value = self._get_arg(value)
+
             if value is not None:
                 try:
                     value = data_type(value)
@@ -116,6 +123,9 @@ class YAMLSettings:
             if self.prefer_env:
                 value = self._get_env(env_var_name, value)
 
+            # Check if there is any arg template in env vars / yaml.
+            value = self._get_arg(value)
+
             # Convert to expected type.
             if value is not None:
                 try:
@@ -132,6 +142,37 @@ class YAMLSettings:
 
         # Return initialized class.
         return self.cache[classname]
+
+
+    def _cmdline_subs(self) -> dict:
+        """ Create a dictionary of commandline --key value pairs.
+        """
+        d = {}
+        i = 1
+        while i < len(sys.argv):
+            field = sys.argv[i]
+            if field.startswith('--'):
+                field = field[2:]   # remove -- prefix
+                if i + 1 < len(sys.argv):
+                    value = sys.argv[i+1]
+                    if value.startswith('--'):
+                        value = 1   # boolean flag
+                else:
+                    value = 1       # boolean flag
+                d[field] = value
+            i += 1
+        return d
+
+
+    def _get_arg(self, value) -> str:
+        """ Perform string substitution using commandline arguments.
+            Substitution placeholders are prefixed with a $.
+            Raises KeyError if arguments do not contain a placeholder.
+        """
+        if type(value) == str:
+            tmpl = string.Template(value)
+            value = tmpl.substitute(self.args)
+        return value
 
 
     def _get_env(self, var_name, default_value):

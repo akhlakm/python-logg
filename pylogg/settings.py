@@ -101,16 +101,6 @@ class YAMLSettings:
             data_type = cls.__annotations__[field]
             value = cls._field_defaults.get(field, None)
 
-            # Check if there is any arg template in the default value.
-            value = self._get_arg(fieldname, value)
-
-            if value is not None:
-                try:
-                    value = data_type(value)
-                except:
-                    raise ValueError(
-                        f"Invalid default for {fieldname}: {value}")
-
             env_var_name = \
                 f"{self.name.upper()}_{classname.upper()}_{field.upper()}"
 

@@ -97,18 +97,19 @@ class YAMLSettings:
 
         # for each namedtuple fields ...
         for field in cls._fields:
+            fieldname = f"{classname}.{field}"
             data_type = cls.__annotations__[field]
             value = cls._field_defaults.get(field, None)
 
             # Check if there is any arg template in the default value.
-            value = self._get_arg(value)
+            value = self._get_arg(fieldname, value)
 
             if value is not None:
                 try:
                     value = data_type(value)
                 except:
                     raise ValueError(
-                        f"Invalid default for {classname}.{field}: {value}")
+                        f"Invalid default for {fieldname}: {value}")
 
             env_var_name = \
                 f"{self.name.upper()}_{classname.upper()}_{field.upper()}"
@@ -124,7 +125,7 @@ class YAMLSettings:
                 value = self._get_env(env_var_name, value)
 
             # Check if there is any arg template in env vars / yaml.
-            value = self._get_arg(value)
+            value = self._get_arg(fieldname, value)
 
             # Convert to expected type.
             if value is not None:
@@ -132,7 +133,7 @@ class YAMLSettings:
                     value = data_type(value)
                 except:
                     raise ValueError(
-                        f"Invalid type for {classname}.{field}: {value}")
+                        f"Invalid type for {fieldname}: {value}")
 
             # Add to class fields
             fields[field] = value
@@ -164,14 +165,18 @@ class YAMLSettings:
         return d
 
 
-    def _get_arg(self, value) -> str:
+    def _get_arg(self, fieldname : str, value) -> str:
         """ Perform string substitution using commandline arguments.
             Substitution placeholders are prefixed with a $.
-            Raises KeyError if arguments do not contain a placeholder.
+            Raises ValueError if arguments do not contain a placeholder.
         """
-        if type(value) == str:
+        if type(value) == str and '$' in value:
             tmpl = string.Template(value)
-            value = tmpl.substitute(self.args)
+            try:
+                value = tmpl.substitute(self.args)
+            except KeyError as err:
+                raise ValueError(f"Argument required for {fieldname}: --{err}?")
+
         return value
 
 

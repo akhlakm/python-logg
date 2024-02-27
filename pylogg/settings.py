@@ -167,8 +167,9 @@ class YAMLSettings:
             try:
                 value = tmpl.substitute(self.args)
             except KeyError as err:
-                err = str(err)[1:-1]
-                raise ValueError(f"Argument required in {fieldname}: --{err} ?")
+                err = str(err)[1:-1] # remove quotes
+                raise ValueError(
+                    f"Argument required for {fieldname}: '{value}', --{err} ?")
 
         return value
 

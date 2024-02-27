@@ -21,6 +21,12 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
+postgres = [
+    "pandas",
+    "sshtunnel",
+    "psycopg[binary]",
+]
+
 dev = [
     "pytest",
     "pre-commit",

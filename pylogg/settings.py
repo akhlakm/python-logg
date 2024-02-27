@@ -99,6 +99,8 @@ class YAMLSettings:
         for field in cls._fields:
             fieldname = f"{classname}.{field}"
             data_type = cls.__annotations__[field]
+
+            # Default value.
             value = cls._field_defaults.get(field, None)
 
             env_var_name = \

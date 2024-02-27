@@ -50,8 +50,8 @@ class YAMLSettings:
     """
 
     def __init__(self, name : str,
-        yamlfile : str = 'settings.yaml', first_arg_as_file : bool = True,
-        load_env : bool = True, prefer_env : bool = True):
+        yamlfile : str = 'settings.yaml', first_arg_as_file : bool = False,
+        load_env : bool = True, prefer_env : bool = False):
 
         # Prefix of the env vars.
         self.name = name
@@ -62,12 +62,16 @@ class YAMLSettings:
         # Override file vars with env vars.
         self.prefer_env = prefer_env
 
-        # Take the first argument as the settings file if any.
-        self.file = (sys.argv[1] if len(sys.argv) > 1 else yamlfile) \
-            if first_arg_as_file else yamlfile
-
         # Commandline args.
-        self.args = self._cmdline_subs()
+        self.args = self._get_cmdline_subs()
+        self.pos_args = self._get_positional_args()
+
+        self.file = yamlfile
+
+        # Take the first argument as the settings file if any.
+        if first_arg_as_file:
+            if len(self.pos_args):
+                self.file = self.pos_args[0]
 
         # YAML file loaded variables.
         self.yamlvars : dict[str, dict[str, any]] = {}
@@ -137,7 +141,17 @@ class YAMLSettings:
         return self.cache[classname]
 
 
-    def _cmdline_subs(self) -> dict:
+    def _get_positional_args(self) -> list[str]:
+        positionals = []
+        for i in range(1, len(sys.argv)):
+            field = sys.argv[i]
+            if not field.startswith("-"):
+                if not sys.argv[i-1].startswith("-"):
+                    positionals.append(field)
+        return positionals
+
+
+    def _get_cmdline_subs(self) -> dict:
         """ Create a dictionary of commandline --key value pairs.
         """
         d = {}
@@ -169,7 +183,7 @@ class YAMLSettings:
             except KeyError as err:
                 err = str(err)[1:-1] # remove quotes
                 raise ValueError(
-                    f"Argument required for {fieldname}: '{value}', --{err} ?")
+                    f"Argument required for {fieldname}='{value}', --{err} ?")
 
         return value
 

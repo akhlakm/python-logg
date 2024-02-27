@@ -48,3 +48,21 @@ def test_args_subs():
     assert test.debug == True
 
     print(test)
+
+
+def test_postitional_args():
+    import sys
+
+    yaml = YAMLSettings('pytest', first_arg_as_file=False)
+    assert yaml.file == 'settings.yaml'
+    print(yaml.pos_args)
+
+    sys.argv += ['--name', 'world', 'settings2.yaml', '--debug', '--num', '22']
+    yaml = YAMLSettings('pytest', first_arg_as_file=True)
+    assert yaml.file == 'settings2.yaml'
+    print(yaml.pos_args)
+
+    sys.argv += ['settings2.yaml']
+    yaml = YAMLSettings('pytest', first_arg_as_file=True)
+    assert yaml.pos_args == ['settings2.yaml', 'settings2.yaml']
+    print(yaml.pos_args)

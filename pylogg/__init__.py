@@ -358,9 +358,9 @@ def section(msg = "", sep = '-', linebreak = True, **kwargs):
     _log(_conf, Level.NONE, _stack_info(), msg)
     return Timer(_conf, **kwargs)
 
-def close():
+def close(msg = "~", level = Level.DONE):
     """ Shutdown logging. Close any open handles. """
-    _log(_conf, Level.TRACE, _stack_info(), "~")
+    _log(_conf, level, _stack_info(), "~")
     if _conf.fileh is not None:
         _conf.fileh.close()
         _conf.fileh = None

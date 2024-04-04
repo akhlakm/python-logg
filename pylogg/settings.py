@@ -57,9 +57,10 @@ class YAMLSettings:
                 prefer_env : bool = False):
 
         # Prefix of the env vars.
+        # So they can be specified as `NAME_SECTION_VAR=value`
         self._name = name
 
-        # Environment variables.
+        # Container for the environment variables.
         self._env  = os.environ if load_env else {}
 
         # Override file vars with env vars.
@@ -211,22 +212,12 @@ class YAMLSettings:
         else:
             return default_value
 
-
-    def set(self, cls : type, instance : NamedTuple):
-        """ Set the cached instance of a class with new version.
-            Useful to update the global settings or writing new sections
-            to YAML file.
-        """
-        assert type(instance) == cls, "Class and instance do not match"
-
-        classname = cls.__name__
-        self._cache[classname] = instance
-
-
     def load_file(
-        self, yaml_file : str = None, first_arg : bool = False):
+        self, yaml_file : str = None, first_arg : bool = False,
+        update : bool = True):
 
         """ Load all sections and variables of a YAML file.
+        Can be called multiple times to update/add over previous values.
 
         yaml_file:
             YAML file to load the settings.
@@ -234,9 +225,13 @@ class YAMLSettings:
         first_arg:
             Treat the first argument as the settings YAML file if any.
 
+        update:
+            Update the existing variables with the variables defined by the new
+            file. If `False`, all existing variables will be removed.
         """
 
         self._file = yaml_file if yaml_file else self._file
+        self._yamlvars = self._yamlvars if update else {}
 
         # Treat the first argument as the settings file if any.
         if first_arg and len(self._pos_args):

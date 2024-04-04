@@ -33,12 +33,12 @@ publish() {
     pytest || exit 1
 
     # Bump the version number.
-    grep version pylogg/__init__.py
-    VERSION=$(sed -n 's/version = "\(.*\)"/\1/p' pylogg/__init__.py)
+    VERSION=$(sed -n 's/__version__ = "\(.*\)"/\1/p' pylogg/__init__.py)
+    echo "version = $VERSION"
     VERSION=$(python -c "v='$VERSION'.split('.');print('%s.%s.%d' %(v[0], v[1], int(v[2])+1))")
     echo "   >>>"
     sed -i "s/\(__version__ = \"\)[^\"]*\"/\1$VERSION\"/" pylogg/__init__.py
-    grep version pylogg/__init__.py
+    echo "version = $VERSION"
 
     # Add to git and push.
     git add pylogg/__init__.py
@@ -47,7 +47,7 @@ publish() {
 
     # Create a new git tag using the pylogg/__init__.py version
     # and push the tag to origin.
-    version=$(sed -n 's/version = "\(.*\)"/\1/p' pylogg/__init__.py)
+    version=$(sed -n 's/__version__ = "\(.*\)"/\1/p' pylogg/__init__.py)
     git tag v$version && git push origin v$version
 
     echo "OK"

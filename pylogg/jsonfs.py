@@ -8,7 +8,7 @@ log = pylogg.get('jsonfs')
 
 def load_lines(jsonl_file : str) -> list[dict]:
     """ Load a JSONL file into list of dictionaries. """
-    log.info("Load JSONL:", jsonl_file)
+    log.trace("Load JSONL:", jsonl_file)
     with open(jsonl_file) as fp:
         jsonlines = list(fp)
 
@@ -19,7 +19,7 @@ def save_lines(linelist : list[dict] , jsonl_file : str):
     """ Save a list of dictionaries as a JSONL file. """
 
     assert type(linelist) == list
-    log.info("Save JSONL:", jsonl_file)
+    log.trace("Save JSONL:", jsonl_file)
 
     # Make sure all dict items have the same keys.
     keys = set()
@@ -42,7 +42,7 @@ def save_dict(obj : dict, filename):
     """ Save a dictionary object as JSON. """
     obj = _recurse_type(obj)
 
-    log.info("Save JSON: ", filename)
+    log.trace("Save JSON: ", filename)
     try:
         json.dump(obj, open(filename, "w"), indent=4)
     except Exception as err:
@@ -52,7 +52,7 @@ def save_dict(obj : dict, filename):
 
 def load_dict(filename) -> dict:
     """ Load a JSON file as dict. """
-    log.info("Load JSON: ", filename)
+    log.trace("Load JSON: ", filename)
     d = json.load(open(filename))
     return d
 

@@ -5,7 +5,8 @@ def test_yaml_write(assets, tmp_path):
     asset_file = assets / "settings.yaml"
     test_output = tmp_path / "settings.yaml"
 
-    yaml = YAMLSettings('pytest', yamlfile=test_output, first_arg_as_file=False)
+    yaml = YAMLSettings('pytest')
+    yaml.load_file(yaml_file=test_output, first_arg=False)
 
     class Test(NamedTuple):
         row1: float = 23.6
@@ -31,7 +32,8 @@ def test_yaml_write(assets, tmp_path):
 def test_args_subs():
     import sys
     sys.argv += ['--name', 'world', '--debug', '--num', '22']
-    yaml = YAMLSettings('pytest', first_arg_as_file=False)
+    yaml = YAMLSettings('pytest')
+    yaml.load_file(first_arg=False)
 
     class Test(NamedTuple):
         greeting: str   = 'Hello $name'
@@ -53,16 +55,14 @@ def test_args_subs():
 def test_postitional_args():
     import sys
 
-    yaml = YAMLSettings('pytest', first_arg_as_file=False)
-    assert yaml._file == 'settings.yaml'
+    yaml = YAMLSettings('pytest')
     print(yaml._pos_args)
 
     sys.argv += ['--name', 'world', 'settings2.yaml', '--debug', '--num', '22']
-    yaml = YAMLSettings('pytest', first_arg_as_file=True)
-    assert yaml._file == 'settings2.yaml'
+    yaml = YAMLSettings('pytest')
     print(yaml._pos_args)
 
     sys.argv += ['settings2.yaml']
-    yaml = YAMLSettings('pytest', first_arg_as_file=True)
+    yaml = YAMLSettings('pytest')
     assert yaml._pos_args == ['settings2.yaml', 'settings2.yaml']
     print(yaml._pos_args)

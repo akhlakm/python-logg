@@ -36,12 +36,6 @@ class YAMLSettings:
     name:
         Name of the settings. Used as the prefix for environment variables.
 
-    yamlfile:
-        YAML file to load the settings.
-
-    first_arg_as_file:
-        Treat the first argument as the settings YAML file if any.
-
     load_env:
         Load settings from environment variables or not.
 
@@ -49,9 +43,8 @@ class YAMLSettings:
         Override YAML vars with environment variables or vice versa.
     """
 
-    def __init__(self, name : str,
-        yamlfile : str = 'settings.yaml', first_arg_as_file : bool = False,
-        load_env : bool = True, prefer_env : bool = False):
+    def __init__(self, name : str, load_env : bool = True,
+                prefer_env : bool = False):
 
         # Prefix of the env vars.
         self._name = name
@@ -66,25 +59,18 @@ class YAMLSettings:
         self._args = self._get_cmdline_subs()
         self._pos_args = self._get_positional_args()
 
-        self._file = yamlfile
-
-        # Take the first argument as the settings file if any.
-        if first_arg_as_file:
-            if len(self._pos_args):
-                self._file = self._pos_args[0]
+        # Loaded file path
+        self._file = 'settings.yaml'
 
         # YAML file loaded variables.
-        self.yamlvars : dict[str, dict[str, any]] = {}
+        self._yamlvars : dict[str, dict[str, any]] = {}
 
         # Cache for the processed sections.
-        self.cache = {}
-
-        self.load_file()
-
+        self._cache = {}
 
     def __repr__(self) -> str:
         s = self.__class__.__name__ + ": "
-        for k, v in self.cache.items():
+        for k, v in self._cache.items():
             s += f"{k} {v._asdict()}"
         return s
 
@@ -96,8 +82,8 @@ class YAMLSettings:
         fields = {}
         classname : str = cls.__name__
 
-        if classname in self.cache:
-            return self.cache[classname]
+        if classname in self._cache:
+            return self._cache[classname]
 
         # for each namedtuple fields ...
         for field in cls._fields:
@@ -135,10 +121,10 @@ class YAMLSettings:
             fields[field] = value
 
         # Cache for future.
-        self.cache[classname] = cls(**fields)
+        self._cache[classname] = cls(**fields)
 
         # Return initialized class.
-        return self.cache[classname]
+        return self._cache[classname]
 
 
     def _get_positional_args(self) -> list[str]:
@@ -193,8 +179,8 @@ class YAMLSettings:
 
 
     def _get_yaml(self, classname, var_name, default_value):
-        if classname in self.yamlvars:
-            return self.yamlvars[classname].get(var_name, default_value)
+        if classname in self._yamlvars:
+            return self._yamlvars[classname].get(var_name, default_value)
         else:
             return default_value
 
@@ -207,23 +193,40 @@ class YAMLSettings:
         assert type(instance) == cls, "Class and instance do not match"
 
         classname = cls.__name__
-        self.cache[classname] = instance
+        self._cache[classname] = instance
 
 
-    def load_file(self):
-        """ Load all sections and variables of the YAML file. """
+    def load_file(
+        self, yaml_file : str = None, first_arg : bool = False):
+
+        """ Load all sections and variables of a YAML file.
+
+        yaml_file:
+            YAML file to load the settings.
+
+        first_arg:
+            Treat the first argument as the settings YAML file if any.
+
+        """
+
+        self._file = yaml_file if yaml_file else self._file
+
+        # Treat the first argument as the settings file if any.
+        if first_arg and len(self._pos_args):
+            self._file = self._pos_args[0]
+
         if os.path.isfile(self._file):
-            yamlfile = yaml.safe_load(open(self._file))
-            for section, fields in yamlfile.items():
+            contents = yaml.safe_load(open(self._file))
+            for section, fields in contents.items():
                 for fieldname, value in fields.items():
-                    if section not in self.yamlvars:
-                        self.yamlvars[section] = {}
-                    self.yamlvars[section][fieldname] = value
+                    if section not in self._yamlvars:
+                        self._yamlvars[section] = {}
+                    self._yamlvars[section][fieldname] = value
 
 
     def is_loaded(self) -> bool:
         """ Returns True if at least one section from YAML file was loaded. """
-        return len(self.yamlvars) > 0
+        return len(self._yamlvars) > 0
 
 
     def save(self, *sections : NamedTuple, yamlfile : str = None,
@@ -235,12 +238,12 @@ class YAMLSettings:
             keep_existing:
                 Keep the already existing sections in the YAML file.
         """
-        configs = self.yamlvars if keep_existing else {}
+        configs = self._yamlvars if keep_existing else {}
         outfile = yamlfile if yamlfile is not None else self._file
 
         # Use all sections
         if len(sections) == 0:
-            sections = self.cache.values()
+            sections = self._cache.values()
 
         # For each NamedTuple section
         for cls in sections:

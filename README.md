@@ -93,6 +93,9 @@ pre-commit install
 
 # Make changes and commit.
 
+# Bump the version
+./make.sh bump
+
 # Publish new tag.
 ./make.sh publish
 ```

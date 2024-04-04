@@ -27,11 +27,7 @@ if [[ $(basename "${0}") != "make.sh" ]]; then
     return 0
 fi
 
-
-publish() {
-    # Run tests
-    pytest || exit 1
-
+bump() {
     # Bump the version number.
     VERSION=$(sed -n 's/__version__ = "\(.*\)"/\1/p' pylogg/__init__.py)
     echo "version = $VERSION"
@@ -39,6 +35,11 @@ publish() {
     echo "   >>>"
     sed -i "s/\(__version__ = \"\)[^\"]*\"/\1$VERSION\"/" pylogg/__init__.py
     echo "version = $VERSION"
+}
+
+publish() {
+    # Run tests
+    pytest || exit 1
 
     # Add to git and push.
     git add pylogg/__init__.py
@@ -80,6 +81,8 @@ if [[ "$#" -lt 1 ]]; then
     echo -e "    prepare    Prepare files to publish."
     echo
     echo -e "    test       Run tests."
+    echo
+    echo -e "    bump       Bump the minor version number."
     echo
     echo -e "    publish    Publish current changes as a new version."
     echo

@@ -1,10 +1,10 @@
 """
 A personally opinionated logging package.
-LICENSE MIT Copyright 2023 Akhlak Mahmood
+LICENSE MIT Copyright 2024 Akhlak Mahmood
 
 """
 
-__version__ = "0.1.26"
+__version__ = "0.1.27"
 __author__ = "Akhlak Mahmood"
 
 import os

@@ -142,13 +142,14 @@ class PLSettings:
 
         # for each namedtuple fields ...
         for field in section_cls._fields:
-            fieldname = f"{section_name}.{field}"
             data_type = section_cls.__annotations__[field]
+
+            # breakpoint()
 
             # Default value.
             value = section_cls._field_defaults.get(field, None)
             fields[field] = \
-                self._populate_field(section_name, fieldname, data_type, value)
+                self._populate_field(section_name, field, data_type, value)
 
         # Return initialized class.
         return section_cls(**fields)

@@ -9,6 +9,7 @@ def test_load_settings(assets, tmp_path):
         row1: float = 100.0
         row2: str   = 'Package'
         row3: str   = 'Settings'
+        row4: str   = 'Default'
 
     class Person(NamedTuple):
         name : str = 'John'
@@ -29,8 +30,25 @@ def test_load_settings(assets, tmp_path):
 
 
     sett = Settings.load(asset_file)
+    test = sett.TestSettings
+    assert test.row1 == 23.6
+    assert test.row2 == "Hello"
+    assert test.row3 == "World"
+    assert test.row4 == "Default"
+
     sett = sett._replace(TestSettings = sett.TestSettings._replace(row1 = 90.0))
+    test = sett.TestSettings
+    assert test.row1 == 90.0
+    assert test.row4 == "Default"
+
+    person = sett.PersonSettings
+    assert person.name == "Mike"
+    assert person.age == 29
+
     sett.create(test_output)
+    assert 'row1: 90.0' in test_output.read_text()
+    assert 'age: 29' in test_output.read_text()
+    assert 'row4: Default' in test_output.read_text()
 
 
 def test_yaml_write(assets, tmp_path):

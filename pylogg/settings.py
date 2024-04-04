@@ -84,6 +84,39 @@ class YAMLSettings:
         return s
 
 
+    def _populate_field(self, section : str, field : str, data_type, def_value):
+        # Start with the default value.
+        value = def_value
+
+        # If _name is given, prefix it for the env var.
+        # Format: NAME_SECTION_FIELD=value
+        env_var_name = f"{section.upper()}_{field.upper()}"
+        if self._name:
+            env_var_name = f"{self._name.upper()}_{env_var_name}"
+
+        # Use the Env var first, if not preferred.
+        if not self._prefer_env:
+            value = self._get_env(env_var_name, value)
+
+        # Override with the YAML vars.
+        value = self._get_yaml(section, field, value)
+
+        # Override with env vars if its preferred.
+        if self._prefer_env:
+            value = self._get_env(env_var_name, value)
+
+        # Check if there is any $ arg template in env vars / yaml.
+        value = self._get_arg(field, value)
+
+        # Convert to expected type.
+        if value is not None:
+            try:
+                value = data_type(value)
+            except:
+                raise ValueError(f"Invalid type for {field}: {value}")
+        return value
+
+
     def _populate_section(self, section_name : str, section_cls : NamedTuple):
         """ Populate settings to the current class/section. """
 
@@ -98,33 +131,8 @@ class YAMLSettings:
 
             # Default value.
             value = section_cls._field_defaults.get(field, None)
-
-            env_var_name = \
-                f"{self._name.upper()}_{section_name.upper()}_{field.upper()}"
-
-            if not self._prefer_env:
-                value = self._get_env(env_var_name, value)
-
-            # Override with YAML file vars.
-            value = self._get_yaml(section_name, field, value)
-
-            # Override with env vars.
-            if self._prefer_env:
-                value = self._get_env(env_var_name, value)
-
-            # Check if there is any arg template in env vars / yaml.
-            value = self._get_arg(fieldname, value)
-
-            # Convert to expected type.
-            if value is not None:
-                try:
-                    value = data_type(value)
-                except:
-                    raise ValueError(
-                        f"Invalid type for {fieldname}: {value}")
-
-            # Add to class fields
-            fields[field] = value
+            fields[field] = \
+                self._populate_field(section_name, fieldname, data_type, value)
 
         # Return initialized class.
         return section_cls(**fields)

@@ -1,6 +1,6 @@
 """
-    A simple module to load configurations from environment varibles or
-    a YAML file.
+    A module to load configurations from environment varibles or
+    YAML file(s).
 
 """
 
@@ -15,46 +15,60 @@ import yaml
 assert sys.version_info >= (3, 10), "Minimum Python 3.10 required"
 
 
-class YAMLSettings:
+class PLSettings:
     """
     Load all settings from environment variables and/or a YAML file.
 
     name:
         Name of the settings. Used as the prefix for environment variables.
 
+    yaml_file:
+        YAML file to load the settings.
+
+    first_arg:
+        Treat the first argument as the settings YAML file if any.
+
     load_env:
         Load settings from environment variables or not.
 
     prefer_env:
         Override YAML vars with environment variables or vice versa.
+        Default order: cmdline > YAML > Env.
+        Prefer_env order: cmdline > Env. > YAML.
 
 
-    Example: Subclass the typing.NamedTuple, and define a classmethod to load the
+    Example:
+
+    Subclass the typing.NamedTuple, and define a classmethod to load the
     settings.
 
-    class Test(NamedTuple):
+    ```python
+    class _Test(NamedTuple):
         name: str   = 'hello'
 
     class Settings(NamedTuple):
         YAML = None
-        TestSettings : Test
+
+        # Define the sections ...
+        TestSettings : _Test
 
         @classmethod
         def load(c, yaml_file = None, first_arg = False) -> 'Settings':
-            c.YAML = YAMLSettings('pytest')
-            c.YAML.load_file(yaml_file=yaml_file, first_arg=first_arg)
+            c.YAML = PLSettings('pytest', yaml_file, first_arg=first_arg)
             return c.YAML.populate(c)
 
-        def save(self, newfile = None):
-            self.YAML.save(self, yamlfile=newfile)
+        def save(self, yaml_file = None):
+            self.YAML.save(self, yaml_file=yaml_file)
 
-    settings = Settings.load(asset_file)
+    settings = Settings.load('settings.yaml')
     test = settings.TestSettings
     print(test.name)
+    ```
     """
 
-    def __init__(self, name : str, load_env : bool = True,
-                prefer_env : bool = False):
+    def __init__(self, name : str, yaml_file : str = None,
+            first_arg : bool = True, load_env : bool = True,
+            prefer_env : bool = False):
 
         # Prefix of the env vars.
         # So they can be specified as `NAME_SECTION_VAR=value`
@@ -71,10 +85,12 @@ class YAMLSettings:
         self._pos_args = self._get_positional_args()
 
         # Loaded file path
-        self._file = 'settings.yaml'
+        self._file = yaml_file if yaml_file else 'settings.yaml'
 
         # YAML file loaded variables.
         self._yamlvars : dict[str, dict[str, any]] = {}
+
+        self.load_file(self._file, first_arg=first_arg)
 
 
     def __repr__(self) -> str:
@@ -139,7 +155,7 @@ class YAMLSettings:
 
 
     def populate(self, settings : NamedTuple):
-        """ Populate settings to all sections. """
+        """ Populate settings to all sections defined by NamedTuple fields. """
 
         assert hasattr(settings, '_fields'), "Settings must be a NamedTuple."
 
@@ -202,7 +218,6 @@ class YAMLSettings:
                 err = str(err)[1:-1] # remove quotes
                 raise ValueError(
                     f"Argument required for {fieldname}='{value}', --{err} ?")
-
         return value
 
 
@@ -220,6 +235,7 @@ class YAMLSettings:
         else:
             return default_value
 
+
     def load_file(
         self, yaml_file : str = None, first_arg : bool = False,
         update : bool = True):
@@ -234,8 +250,8 @@ class YAMLSettings:
             Treat the first argument as the settings YAML file if any.
 
         update:
-            Update the existing variables with the variables defined by the new
-            file. If `False`, all existing variables will be removed.
+            Update the existing sections with the variables defined by the new
+            file. If `False`, all existing sections will be removed.
         """
 
         self._file = yaml_file if yaml_file else self._file
@@ -259,17 +275,23 @@ class YAMLSettings:
         return len(self._yamlvars) > 0
 
 
-    def save(self, settings : NamedTuple, yamlfile : str = None,
+    def save(self, settings : NamedTuple, yaml_file : str = None,
                 keep_existing : bool = True):
-        """ Save the settings to a YAML file.
-            If no yamlfile is given, the initial file is used.
+        """ Save all sections of the settings to a YAML file.
+            If no yaml_file is given, the initial file is used.
 
             keep_existing:
                 Keep the already existing sections in the YAML file.
         """
 
-        configs = self._yamlvars if keep_existing else {}
-        outfile = yamlfile if yamlfile is not None else self._file
+        outfile = yaml_file if yaml_file else self._file
+
+        existing = yaml.safe_load(open(outfile)) \
+            if os.path.isfile(outfile) else {}
+
+        configs = existing if keep_existing else {}
+
+        assert type(configs) == dict, f"Existing YAML is not a dict: {outfile}"
 
         assert hasattr(settings, '_fields'), "Settings must be a NamedTuple."
 

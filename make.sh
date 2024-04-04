@@ -33,28 +33,28 @@ publish() {
     pytest || exit 1
 
     # Bump the version number.
-    grep version pyproject.toml
-    VERSION=$(sed -n 's/version = "\(.*\)"/\1/p' pyproject.toml)
+    grep version pylogg/__init__.py
+    VERSION=$(sed -n 's/version = "\(.*\)"/\1/p' pylogg/__init__.py)
     VERSION=$(python -c "v='$VERSION'.split('.');print('%s.%s.%d' %(v[0], v[1], int(v[2])+1))")
     echo "   >>>"
-    sed -i "s/\(version = \"\)[^\"]*\"/\1$VERSION\"/" pyproject.toml
     sed -i "s/\(__version__ = \"\)[^\"]*\"/\1$VERSION\"/" pylogg/__init__.py
-    grep version pyproject.toml
+    grep version pylogg/__init__.py
 
     # Add to git and push.
-    git add pyproject.toml pylogg/__init__.py
+    git add pylogg/__init__.py
     git commit -m "Bump to v$VERSION"
     git push
 
-    # Create a new git tag using the pyproject.toml version
+    # Create a new git tag using the pylogg/__init__.py version
     # and push the tag to origin.
-    version=$(sed -n 's/version = "\(.*\)"/\1/p' pyproject.toml)
+    version=$(sed -n 's/version = "\(.*\)"/\1/p' pylogg/__init__.py)
     git tag v$version && git push origin v$version
 
     echo "OK"
 }
 
 setup() {
+    pip install -e .[dev]
     pip install pytest pre-commit
     pre-commit install
 }

@@ -1,4 +1,4 @@
-from pylogg.settings import NamedTuple, YAMLSettings
+from pylogg.settings import NamedTuple, PLSettings
 
 
 def test_load_settings(assets, tmp_path):
@@ -21,12 +21,11 @@ def test_load_settings(assets, tmp_path):
 
         @classmethod
         def load(c, yaml_file = None, first_arg = False) -> 'Settings':
-            c.YAML = YAMLSettings('pytest')
-            c.YAML.load_file(yaml_file=yaml_file, first_arg=first_arg)
+            c.YAML = PLSettings('pytest', yaml_file, first_arg=first_arg)
             return c.YAML.populate(c)
 
         def create(self, newfile = None):
-            self.YAML.save(self, yamlfile=newfile)
+            self.YAML.save(self, yaml_file=newfile)
 
 
     sett = Settings.load(asset_file)
@@ -49,12 +48,11 @@ def test_yaml_write(assets, tmp_path):
 
         @classmethod
         def load(c, yaml_file = None, first_arg = False) -> 'Settings':
-            c.YAML = YAMLSettings('pytest')
-            c.YAML.load_file(yaml_file=yaml_file, first_arg=first_arg)
+            c.YAML = PLSettings('pytest', yaml_file, first_arg=first_arg)
             return c.YAML.populate(c)
 
         def save(self, newfile = None):
-            self.YAML.save(self, yamlfile=newfile)
+            self.YAML.save(self, yaml_file=newfile)
 
     settings = Settings.load(asset_file)
     test = settings.TestSettings
@@ -84,8 +82,7 @@ def test_args_subs():
 
         @classmethod
         def load(c, yaml_file = None, first_arg = False) -> 'Settings':
-            c.YAML = YAMLSettings('pytest')
-            c.YAML.load_file(yaml_file=yaml_file, first_arg=first_arg)
+            c.YAML = PLSettings('pytest', yaml_file, first_arg=first_arg)
             return c.YAML.populate(c)
 
         def save(self, newfile = None):
@@ -104,14 +101,14 @@ def test_args_subs():
 def test_postitional_args():
     import sys
 
-    yaml = YAMLSettings('pytest')
+    yaml = PLSettings('pytest')
     print(yaml._pos_args)
 
     sys.argv += ['--name', 'world', 'settings2.yaml', '--debug', '--num', '22']
-    yaml = YAMLSettings('pytest')
+    yaml = PLSettings('pytest')
     print(yaml._pos_args)
 
     sys.argv += ['settings2.yaml']
-    yaml = YAMLSettings('pytest')
+    yaml = PLSettings('pytest')
     assert yaml._pos_args == ['settings2.yaml', 'settings2.yaml']
     print(yaml._pos_args)

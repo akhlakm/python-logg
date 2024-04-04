@@ -1,12 +1,15 @@
 [project]
 name = "pylogg"
-version = "0.1.29"
 authors = [
     { name="Akhlak Mahmood", email="akhlakm@gatech.edu" },
 ]
 description = "Logging and YAML-based configuration modules in Python."
 readme = "README.md"
 requires-python = ">=3.10"
+
+dynamic = [
+    "version",
+]
 
 keywords = ["logging", "development"]
 
@@ -44,3 +47,6 @@ build-backend = "setuptools.build_meta"
 
 [tool.setuptools]
 packages = ["pylogg"]
+
+[tool.setuptools.dynamic]
+version = {attr = "pylogg.__version__"}

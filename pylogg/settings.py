@@ -31,7 +31,7 @@ assert sys.version_info >= (3, 10), "Minimum Python 3.10 required"
 
 class YAMLSettings:
     """
-    Load settings from environment variables and/or a YAML file.
+    Load all settings from environment variables and/or a YAML file.
 
     name:
         Name of the settings. Used as the prefix for environment variables.
@@ -54,24 +54,24 @@ class YAMLSettings:
         load_env : bool = True, prefer_env : bool = False):
 
         # Prefix of the env vars.
-        self.name = name
+        self._name = name
 
         # Environment variables.
-        self.env  = os.environ if load_env else {}
+        self._env  = os.environ if load_env else {}
 
         # Override file vars with env vars.
-        self.prefer_env = prefer_env
+        self._prefer_env = prefer_env
 
         # Commandline args.
-        self.args = self._get_cmdline_subs()
-        self.pos_args = self._get_positional_args()
+        self._args = self._get_cmdline_subs()
+        self._pos_args = self._get_positional_args()
 
-        self.file = yamlfile
+        self._file = yamlfile
 
         # Take the first argument as the settings file if any.
         if first_arg_as_file:
-            if len(self.pos_args):
-                self.file = self.pos_args[0]
+            if len(self._pos_args):
+                self._file = self._pos_args[0]
 
         # YAML file loaded variables.
         self.yamlvars : dict[str, dict[str, any]] = {}
@@ -108,16 +108,16 @@ class YAMLSettings:
             value = cls._field_defaults.get(field, None)
 
             env_var_name = \
-                f"{self.name.upper()}_{classname.upper()}_{field.upper()}"
+                f"{self._name.upper()}_{classname.upper()}_{field.upper()}"
 
-            if not self.prefer_env:
+            if not self._prefer_env:
                 value = self._get_env(env_var_name, value)
 
             # Override with YAML file vars.
             value = self._get_yaml(classname, field, value)
 
             # Override with env vars.
-            if self.prefer_env:
+            if self._prefer_env:
                 value = self._get_env(env_var_name, value)
 
             # Check if there is any arg template in env vars / yaml.
@@ -179,7 +179,7 @@ class YAMLSettings:
         if type(value) == str and '$' in value:
             tmpl = string.Template(value)
             try:
-                value = tmpl.substitute(self.args)
+                value = tmpl.substitute(self._args)
             except KeyError as err:
                 err = str(err)[1:-1] # remove quotes
                 raise ValueError(
@@ -189,7 +189,7 @@ class YAMLSettings:
 
 
     def _get_env(self, var_name, default_value):
-        return self.env.get(var_name, default_value)
+        return self._env.get(var_name, default_value)
 
 
     def _get_yaml(self, classname, var_name, default_value):
@@ -211,9 +211,9 @@ class YAMLSettings:
 
 
     def load_file(self):
-        """ Load the variables of the YAML file. """
-        if os.path.isfile(self.file):
-            yamlfile = yaml.safe_load(open(self.file))
+        """ Load all sections and variables of the YAML file. """
+        if os.path.isfile(self._file):
+            yamlfile = yaml.safe_load(open(self._file))
             for section, fields in yamlfile.items():
                 for fieldname, value in fields.items():
                     if section not in self.yamlvars:
@@ -236,7 +236,7 @@ class YAMLSettings:
                 Keep the already existing sections in the YAML file.
         """
         configs = self.yamlvars if keep_existing else {}
-        outfile = yamlfile if yamlfile is not None else self.file
+        outfile = yamlfile if yamlfile is not None else self._file
 
         # Use all sections
         if len(sections) == 0:
@@ -269,5 +269,5 @@ class YAMLSettings:
     def copy_sample(self, sample_file : str):
         """ Copy a sample YAML file to the current settings file. """
         import shutil
-        shutil.copyfile(sample_file, self.file)
-        print("Save OK:", self.file)
+        shutil.copyfile(sample_file, self._file)
+        print("Save OK:", self._file)

@@ -40,15 +40,15 @@ bump() {
 publish() {
     # Run tests
     pytest || exit 1
+    version=$(sed -n 's/__version__ = "\(.*\)"/\1/p' pylogg/__init__.py)
 
     # Add to git and push.
     git add pylogg/__init__.py
-    git commit -m "Bump to v$VERSION"
+    git commit -m "Bump to v$version"
     git push
 
     # Create a new git tag using the pylogg/__init__.py version
     # and push the tag to origin.
-    version=$(sed -n 's/__version__ = "\(.*\)"/\1/p' pylogg/__init__.py)
     git tag v$version && git push origin v$version
 
     echo "OK"

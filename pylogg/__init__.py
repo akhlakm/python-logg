@@ -4,7 +4,7 @@ LICENSE MIT Copyright 2024 Akhlak Mahmood
 
 """
 
-__version__ = ""
+__version__ = "0.1.30"
 __author__ = "Akhlak Mahmood"
 
 import os

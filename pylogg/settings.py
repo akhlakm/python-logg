@@ -144,10 +144,10 @@ class PLSettings:
         for field in section_cls._fields:
             data_type = section_cls.__annotations__[field]
 
-            # breakpoint()
-
             # Default value.
             value = section_cls._field_defaults.get(field, None)
+
+            # Populate field
             fields[field] = \
                 self._populate_field(section_name, field, data_type, value)
 

@@ -2,20 +2,6 @@
     A simple module to load configurations from environment varibles or
     a YAML file.
 
-    Subclass the typing.NamedTuple, and define a classmethod to load the
-    settings.
-
-    yaml = YAMLSettings()
-
-    class Test(NamedTuple):
-        name: str   = 'hello'
-
-        @classmethod
-        def settings(cls) -> 'Test': return yaml(cls)
-
-    test = Test.settings()
-    print(test.name)
-
 """
 
 import os
@@ -41,6 +27,30 @@ class YAMLSettings:
 
     prefer_env:
         Override YAML vars with environment variables or vice versa.
+
+
+    Example: Subclass the typing.NamedTuple, and define a classmethod to load the
+    settings.
+
+    class Test(NamedTuple):
+        name: str   = 'hello'
+
+    class Settings(NamedTuple):
+        YAML = None
+        TestSettings : Test
+
+        @classmethod
+        def load(c, yaml_file = None, first_arg = False) -> 'Settings':
+            c.YAML = YAMLSettings('pytest')
+            c.YAML.load_file(yaml_file=yaml_file, first_arg=first_arg)
+            return c.YAML.populate(c)
+
+        def save(self, newfile = None):
+            self.YAML.save(self, yamlfile=newfile)
+
+    settings = Settings.load(asset_file)
+    test = settings.TestSettings
+    print(test.name)
     """
 
     def __init__(self, name : str, load_env : bool = True,
@@ -65,42 +75,37 @@ class YAMLSettings:
         # YAML file loaded variables.
         self._yamlvars : dict[str, dict[str, any]] = {}
 
-        # Cache for the processed sections.
-        self._cache = {}
 
     def __repr__(self) -> str:
         s = self.__class__.__name__ + ": "
-        for k, v in self._cache.items():
+        for k, v in self._yamlvars.items():
             s += f"{k} {v._asdict()}"
         return s
 
-    def __call__(self, cls : NamedTuple):
+
+    def _populate_section(self, section_name : str, section_cls : NamedTuple):
         """ Populate settings to the current class/section. """
 
-        assert hasattr(cls, '_fields'), "Settings must be a NamedTuple."
+        assert hasattr(section_cls, '_fields'), "Section must be a NamedTuple."
 
         fields = {}
-        classname : str = cls.__name__
-
-        if classname in self._cache:
-            return self._cache[classname]
 
         # for each namedtuple fields ...
-        for field in cls._fields:
-            fieldname = f"{classname}.{field}"
-            data_type = cls.__annotations__[field]
+        for field in section_cls._fields:
+            fieldname = f"{section_name}.{field}"
+            data_type = section_cls.__annotations__[field]
 
             # Default value.
-            value = cls._field_defaults.get(field, None)
+            value = section_cls._field_defaults.get(field, None)
 
             env_var_name = \
-                f"{self._name.upper()}_{classname.upper()}_{field.upper()}"
+                f"{self._name.upper()}_{section_name.upper()}_{field.upper()}"
 
             if not self._prefer_env:
                 value = self._get_env(env_var_name, value)
 
             # Override with YAML file vars.
-            value = self._get_yaml(classname, field, value)
+            value = self._get_yaml(section_name, field, value)
 
             # Override with env vars.
             if self._prefer_env:
@@ -120,11 +125,29 @@ class YAMLSettings:
             # Add to class fields
             fields[field] = value
 
-        # Cache for future.
-        self._cache[classname] = cls(**fields)
+        # Return initialized class.
+        return section_cls(**fields)
+
+
+    def populate(self, settings : NamedTuple):
+        """ Populate settings to all sections. """
+
+        assert hasattr(settings, '_fields'), "Settings must be a NamedTuple."
+
+        sections = {}
+
+        # for each settings sections ...
+        for section_name in settings._fields:
+            section_definition = settings.__annotations__[section_name]
+
+            # populate individual section
+            value = self._populate_section(section_name, section_definition)
+
+            # Add to class sections
+            sections[section_name] = value
 
         # Return initialized class.
-        return self._cache[classname]
+        return settings(**sections)
 
 
     def _get_positional_args(self) -> list[str]:
@@ -178,6 +201,10 @@ class YAMLSettings:
         return self._env.get(var_name, default_value)
 
 
+    def _get_yaml_section(self, classname, default_value):
+        return self._yamlvars.get(classname, default_value)
+
+
     def _get_yaml(self, classname, var_name, default_value):
         if classname in self._yamlvars:
             return self._yamlvars[classname].get(var_name, default_value)
@@ -229,41 +256,26 @@ class YAMLSettings:
         return len(self._yamlvars) > 0
 
 
-    def save(self, *sections : NamedTuple, yamlfile : str = None,
+    def save(self, settings : NamedTuple, yamlfile : str = None,
                 keep_existing : bool = True):
-        """ Save the given sections to YAML file.
-            If no section is specified, all sections are written.
+        """ Save the settings to a YAML file.
             If no yamlfile is given, the initial file is used.
 
             keep_existing:
                 Keep the already existing sections in the YAML file.
         """
+
         configs = self._yamlvars if keep_existing else {}
         outfile = yamlfile if yamlfile is not None else self._file
 
-        # Use all sections
-        if len(sections) == 0:
-            sections = self._cache.values()
+        assert hasattr(settings, '_fields'), "Settings must be a NamedTuple."
 
-        # For each NamedTuple section
-        for cls in sections:
-            assert hasattr(cls, '_fields'), "Section must be a NamedTuple"
+        # for each settings sections ...
+        for section_name in settings._fields:
+            section = getattr(settings, section_name)
 
-            try:
-                # class
-                section = cls.__name__
-                assert hasattr(cls, 'settings'), \
-                    f"No 'settings' method found in {section}, use an instance."
-                try:
-                    configs[section] = cls.settings()._asdict()
-                except:
-                    raise RuntimeError(
-                        f"{section}.settings() not found, use an instance.")
-
-            except AttributeError:
-                # instance
-                section = cls.__class__.__name__
-                configs[section] = cls._asdict()
+            if hasattr(section, '_asdict'):
+                configs[section_name] = section._asdict()
 
         yaml.safe_dump(configs, open(outfile, 'w'), indent=4)
         print("Save OK:", outfile)

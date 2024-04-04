@@ -1,4 +1,8 @@
-Test:
+TestSettings:
     row1: 23.6
     row2: Hello
     row3: World
+
+PersonSettings:
+    name: Mike
+    age: 29

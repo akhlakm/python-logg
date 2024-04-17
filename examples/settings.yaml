@@ -1,3 +1,4 @@
 Test:
-    age: 104
-    name: John
+    row1: 23.6
+    row2: Hello
+    row3: Earth

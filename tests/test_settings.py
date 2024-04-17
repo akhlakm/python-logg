@@ -1,26 +1,22 @@
-from typing import ClassVar
-
-from pydantic import BaseModel
-
-from pylogg.settings import SettingsParser
+from pylogg.settings import NamedTuple, SettingsParser
 
 
 def test_load_settings(assets, tmp_path):
     asset_file = assets / "settings.yaml"
     test_output = tmp_path / "settings.yaml"
 
-    class Test(BaseModel):
+    class Test(NamedTuple):
         row1: float = 100.0
         row2: str   = 'Package'
         row3: str   = 'Settings'
         row4: str   = 'Default'
 
-    class Person(BaseModel):
+    class Person(NamedTuple):
         name : str = 'John'
         age : int = 3
 
-    class Settings(BaseModel):
-        YAML : ClassVar = None
+    class Settings(NamedTuple):
+        YAML = None
         TestSettings : Test
         PersonSettings : Person
 
@@ -40,7 +36,8 @@ def test_load_settings(assets, tmp_path):
     assert test.row3 == "World"
     assert test.row4 == "Default"
 
-    sett.TestSettings.row1 = 90.0
+    sett = sett._replace(TestSettings = sett.TestSettings._replace(row1 = 90.0))
+    test = sett.TestSettings
     assert test.row1 == 90.0
     assert test.row4 == "Default"
 
@@ -58,13 +55,13 @@ def test_yaml_write(assets, tmp_path):
     asset_file = assets / "settings.yaml"
     test_output = tmp_path / "settings.yaml"
 
-    class Test(BaseModel):
+    class Test(NamedTuple):
         row1: float = 23.6
         row2: str   = 'Hello'
         row3: str   = 'World'
 
-    class Settings(BaseModel):
-        YAML : ClassVar = None
+    class Settings(NamedTuple):
+        YAML = None
         TestSettings : Test
 
         @classmethod
@@ -92,13 +89,13 @@ def test_args_subs():
     import sys
     sys.argv += ['--name', 'world', '--debug', '--num', '22']
 
-    class Test(BaseModel):
+    class Test(NamedTuple):
         greeting: str   = 'Hello $name'
         number : int    = '$num'
         debug : bool    = '$debug'
 
-    class Settings(BaseModel):
-        YAML : ClassVar = None
+    class Settings(NamedTuple):
+        YAML = None
         TestSettings : Test
 
         @classmethod

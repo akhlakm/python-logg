@@ -1,42 +1,37 @@
-from typing import ClassVar
+from typing import NamedTuple
 
-from pydantic import BaseModel
+from pylogg.settings import YAMLSettings
 
-from pylogg.settings import SettingsParser
+# Load settings from `settings.yaml` file and environment variables.
+# If a file is given as the first argument, load it as the YAML file.
+# Environment variables will be searched as `SETT_TEST_ROW1` etc.
+# Prefer environment variable definitions over YAML definitions.
+yaml = YAMLSettings(
+    'sett', first_arg_as_file=True, load_env=True, prefer_env=True)
 
 
-class TestSettings(BaseModel):
-    name: str   = 'Mike'
-    age : int   = 94
-
-class Settings(BaseModel):
-    YAML : ClassVar = None
-
-    # Define the sections ...
-    Test : TestSettings
+# Define a classmethod to load the settings.
+class Test(NamedTuple):
+    row1: float = 23.6
+    row2: str   = 'Hello'
+    row3: str   = 'world'
 
     @classmethod
-    def load(c, yaml_file = None, first_arg = False) -> 'Settings':
-        c.YAML = SettingsParser('example', yaml_file, first_arg=first_arg)
-        return c.YAML.populate(c)
-
-    def save(self, yaml_file = None):
-        self.YAML.save(self, yaml_file=yaml_file)
+    def settings(c) -> 'Test': return yaml(c)
 
 
 if __name__ == '__main__':
-    settings = Settings.load('settings.yaml')
-    test = settings.Test
+    # Use the class method to load the settings.
+    test = Test.settings()
     print(test)
 
     # Settings can be globally set/updated.
-    test.age = 23
+    updated = test._replace(row3='Earth')
+    yaml.set(Test, updated)
 
     # This now has updated values.
-    print(test)
+    print(yaml)
 
-    # All settings
-    print(settings)
-
-    # Save to the yaml file.
-    # settings.save()
+    if not yaml.is_loaded():
+        # Write to the YAML file.
+        yaml.save()

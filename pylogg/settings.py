@@ -3,19 +3,18 @@
     YAML file(s).
 
 """
-
 import os
 import string
 import sys
-from typing import NamedTuple
 
 import yaml
+from pydantic import BaseModel
+from pydantic.fields import FieldInfo
+from pydantic_core import PydanticUndefined
 
-# For access to the __annotations__ attribute.
 assert sys.version_info >= (3, 10), "Minimum Python 3.10 required"
 
-
-class PLSettings:
+class SettingsParser:
     """
     Load all settings from environment variables and/or a YAML file.
 
@@ -39,18 +38,21 @@ class PLSettings:
 
     Example:
 
-    Subclass the typing.NamedTuple, and define a classmethod to load the
+    Subclass the pydantic.BaseModel, and define a classmethod to load the
     settings.
 
     ```python
-    class _Test(NamedTuple):
+    from typing import ClassVar
+    from pydantic import BaseModel
+
+    class TestSettings(BaseModel):
         name: str   = 'hello'
 
-    class Settings(NamedTuple):
-        YAML = None
+    class Settings(BaseModel):
+        YAML : ClassVar = None
 
         # Define the sections ...
-        TestSettings : _Test
+        Test : TestSettings
 
         @classmethod
         def load(c, yaml_file = None, first_arg = False) -> 'Settings':
@@ -61,7 +63,7 @@ class PLSettings:
             self.YAML.save(self, yaml_file=yaml_file)
 
     settings = Settings.load('settings.yaml')
-    test = settings.TestSettings
+    test = settings.Test
     print(test.name)
     ```
     """
@@ -100,9 +102,12 @@ class PLSettings:
         return s
 
 
-    def _populate_field(self, section : str, field : str, data_type, def_value):
+    def _populate_field(self, section : str, field : str, info : FieldInfo):
+        if info.is_required() and info.default is PydanticUndefined:
+            raise AssertionError(f"{section}.{field} is required")
+
         # Start with the default value.
-        value = def_value
+        value = info.default
 
         # If _name is given, prefix it for the env var.
         # Format: NAME_SECTION_FIELD=value
@@ -127,47 +132,44 @@ class PLSettings:
         # Convert to expected type.
         if value is not None:
             try:
-                value = data_type(value)
+                value = info.annotation(value)
             except:
                 raise ValueError(f"Invalid type for {field}: {value}")
         return value
 
 
-    def _populate_section(self, section_name : str, section_cls : NamedTuple):
+    def _populate_section(self, section_name : str, section_cls : BaseModel):
         """ Populate settings to the current class/section. """
 
-        assert hasattr(section_cls, '_fields'), "Section must be a NamedTuple."
+        assert hasattr(section_cls, 'model_fields'), "Section must be a BaseModel."
 
         fields = {}
 
-        # for each namedtuple fields ...
-        for field in section_cls._fields:
-            data_type = section_cls.__annotations__[field]
+        # for each BaseModel fields ...
+        for field in section_cls.model_fields:
+            section_cls.__annotations__[field]
 
-            # Default value.
-            value = section_cls._field_defaults.get(field, None)
-
-            # Populate field
+        for field, field_info in section_cls.model_fields.items():
             fields[field] = \
-                self._populate_field(section_name, field, data_type, value)
+                self._populate_field(section_name, field, field_info)
 
         # Return initialized class.
         return section_cls(**fields)
 
 
-    def populate(self, settings : NamedTuple):
-        """ Populate settings to all sections defined by NamedTuple fields. """
+    def populate(self, settings : BaseModel):
+        """ Populate settings to all sections defined by BaseModel fields. """
 
-        assert hasattr(settings, '_fields'), "Settings must be a NamedTuple."
+        assert hasattr(settings, 'model_fields'), "Settings must be a BaseModel."
 
         sections = {}
 
         # for each settings sections ...
-        for section_name in settings._fields:
-            section_definition = settings.__annotations__[section_name]
+        for section_name, section_info in settings.model_fields.items():
+            section_cls = section_info.annotation
 
             # populate individual section
-            value = self._populate_section(section_name, section_definition)
+            value = self._populate_section(section_name, section_cls)
 
             # Add to class sections
             sections[section_name] = value
@@ -276,7 +278,7 @@ class PLSettings:
         return len(self._yamlvars) > 0
 
 
-    def save(self, settings : NamedTuple, yaml_file : str = None,
+    def save(self, settings : BaseModel, yaml_file : str = None,
                 keep_existing : bool = True):
         """ Save all sections of the settings to a YAML file.
             If no yaml_file is given, the initial file is used.
@@ -294,14 +296,14 @@ class PLSettings:
 
         assert type(configs) == dict, f"Existing YAML is not a dict: {outfile}"
 
-        assert hasattr(settings, '_fields'), "Settings must be a NamedTuple."
+        assert hasattr(settings, 'model_fields'), "Settings must be a BaseModel."
 
         # for each settings sections ...
-        for section_name in settings._fields:
+        for section_name in settings.model_fields:
             section = getattr(settings, section_name)
 
-            if hasattr(section, '_asdict'):
-                configs[section_name] = section._asdict()
+            if hasattr(section, 'model_dump'):
+                configs[section_name] = section.model_dump()
 
         yaml.safe_dump(configs, open(outfile, 'w'), indent=4)
         print("Save OK:", outfile)

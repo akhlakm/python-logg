@@ -1,37 +1,46 @@
 from typing import NamedTuple
 
-from pylogg.settings import YAMLSettings
-
-# Load settings from `settings.yaml` file and environment variables.
-# If a file is given as the first argument, load it as the YAML file.
-# Environment variables will be searched as `SETT_TEST_ROW1` etc.
-# Prefer environment variable definitions over YAML definitions.
-yaml = YAMLSettings(
-    'sett', first_arg_as_file=True, load_env=True, prefer_env=True)
+from pylogg.settings import SettingsParser
 
 
-# Define a classmethod to load the settings.
-class Test(NamedTuple):
-    row1: float = 23.6
-    row2: str   = 'Hello'
-    row3: str   = 'world'
+class TestSettings(NamedTuple):
+    name: str   = 'Mike'
+    age : int   = 94
+
+class Settings(NamedTuple):
+    YAML = None
+
+    # Define the sections ...
+    Test : TestSettings
 
     @classmethod
-    def settings(c) -> 'Test': return yaml(c)
+    def load(c, yaml_file = None, first_arg = False) -> 'Settings':
+        c.YAML = SettingsParser('example', yaml_file, first_arg=first_arg)
+        return c.YAML.populate(c)
+
+    def save(self, yaml_file = None):
+        self.YAML.save(self, yaml_file=yaml_file)
 
 
 if __name__ == '__main__':
-    # Use the class method to load the settings.
-    test = Test.settings()
-    print(test)
+    # Load settings from YAML
+    settings = Settings.load('settings.yaml')
+    test = settings.Test
+    print("Loaded from yaml:", test)
 
-    # Settings can be globally set/updated.
-    updated = test._replace(row3='Earth')
-    yaml.set(Test, updated)
+    # Change single value of settings
+    test = test._replace(age = 50)
+    print("Changed age from yaml:", test)
+
+    # Create new settings.
+    test = TestSettings(name='John', age=23)
 
     # This now has updated values.
-    print(yaml)
+    print("New settings:", test)
 
-    if not yaml.is_loaded():
-        # Write to the YAML file.
-        yaml.save()
+    # Update global settings
+    settings = settings._replace(Test = test)
+    print("All updated settings:", settings)
+
+    # Save to the yaml file.
+    # settings.save()

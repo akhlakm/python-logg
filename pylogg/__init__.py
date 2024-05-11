@@ -216,8 +216,7 @@ def _colorize(conf, level, msg):
         return f"{_color_seqs[level]}{msg}{_reset_seq}"
 
 def _save(conf : _config, level, fmtmsg, timestr, caller):
-    if conf.fileh is None:
-        return
+    """ Log to file or callback """
 
     if not conf.file_times:
         timestr = ""
@@ -235,13 +234,19 @@ def _save(conf : _config, level, fmtmsg, timestr, caller):
     else:
         line = fmtmsg
 
-    conf.fileh.write(line + "\n")
-    conf.fileh.flush()
-    os.fsync(conf.fileh.fileno())
+    if conf.fileh:
+        conf.fileh.write(line + "\n")
+        conf.fileh.flush()
+        os.fsync(conf.fileh.fileno())
 
     if conf.callback:
-        conf.callback(line)
+        try:
+            conf.callback(line)
+        except Exception as err:
+            print(err)
+
     return line
+
 
 def _print(conf : _config, level, fmtmsg, timestr, caller):
     if not conf.console_times:

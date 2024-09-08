@@ -1,6 +1,7 @@
 import pylogg
 
-log = pylogg.New("module")
+# Log level 3 (warn) is set by the module.
+log = pylogg.New("module").level(3)
 
 def run():
     log.fatal("Hello world")

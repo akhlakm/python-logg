@@ -29,6 +29,7 @@ fi
 
 bump() {
     # Bump the version number.
+    echo "Note: This may not work in MACOS!"
     VERSION=$(sed -n 's/__version__ = "\(.*\)"/\1/p' pylogg/__init__.py)
     echo "version = $VERSION"
     VERSION=$(python -c "v='$VERSION'.split('.');print('%s.%s.%d' %(v[0], v[1], int(v[2])+1))")

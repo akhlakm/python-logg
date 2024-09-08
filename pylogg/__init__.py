@@ -4,7 +4,7 @@ LICENSE MIT Copyright 2024 Akhlak Mahmood
 
 """
 
-__version__ = "0.3.3"
+__version__ = "0.4.0"
 __author__ = "Akhlak Mahmood"
 
 import os
@@ -132,13 +132,21 @@ class _new(_config):
         }
 
     def update(self, key, value):
-        """ Set individual setting of the named logger. """
+        """ Update individual settings of the named logger. """
         avail = [v for v in vars(_config) if not v.startswith("_")]
         if key in avail:
             self.conf[key] = value
         else:
             raise AttributeError("Unknown setting: '%s'\nAvailable: %s" %(key, avail))
         return self
+
+    def level(self, level : int | Level):
+        """ Override the level of this named logger. """
+        return self.update('level', level)
+
+    def set(self, key, value):
+        """ Set individual settings of the named logger. """
+        return self.update(key, value)
 
     def setCallback(self, cb: callable):
         """ Add a callback function to pass the formatted log messages.
@@ -149,12 +157,12 @@ class _new(_config):
         self.conf['callback'] = cb
 
     def _log(self, level, stack, msg, *args, **kwargs):
-        # Update with the module level configurations.
+        # Update with the module level configurations,
+        # in case it was changed after importing the named logger.
         self.__dict__.update(_conf.__dict__)
-        # Update with sub-logger level configurations.
+
+        # Override with sub-logger level configurations.
         self.__dict__.update(self.conf)
-        if self.level < level:
-            return
         _log(self, level, stack, msg, *args, **kwargs)
 
     def fatal(self, msg, *args, **kwargs):
@@ -274,13 +282,12 @@ def _print(conf : _config, level, fmtmsg, timestr, caller):
         print(line, file=sys.stdout, flush=True)
     return line
 
-def _log(conf, level : int, stack : tuple, msg : str, *args, **kwargs):
-    if _conf.level < level:
-        return
+def _log(conf : _config, level : int, stack : tuple, msg : str, *args, **kwargs):
+    # changed in v0.3.4: use the level set to the named log, not the global level
+    max_level = _levelOverrides[conf.logger] if conf.logger in _levelOverrides else conf.level
 
-    if conf.logger in _levelOverrides:
-        if _levelOverrides[conf.logger] < level:
-            return
+    if max_level < level:
+        return
 
     # Caller info
     lineno = stack[1]

@@ -19,11 +19,12 @@ def callback(msg : str):
 
 log.setFile(open('example.log', 'w+'))
 log.setConsoleTimes(show=True)
-log.setLevel(log.Level.DEBUG)
 
-# Override the level of a named sub-logger.
+# Default level set for all loggers.
+log.setLevel(log.Level.ERROR)
+
+# Override the level of a named sub-logger to info.
 log.setLoggerLevel('module', log.Level.INFO)
-
 
 s = log.info("Staring main --", id=23)
 mainfn()

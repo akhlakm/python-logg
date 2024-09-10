@@ -140,7 +140,7 @@ class _new(_config):
             raise AttributeError("Unknown setting: '%s'\nAvailable: %s" %(key, avail))
         return self
 
-    def level(self, level : int | Level):
+    def setLevel(self, level : int | Level):
         """ Override the level of this named logger. """
         return self.update('level', level)
 
